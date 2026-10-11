@@ -26,6 +26,8 @@ class AuthenticatedSessionController extends Controller
         if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
             $seconds = RateLimiter::availableIn($rateLimitKey);
 
+            $request->session()->flash('retry_after', $seconds);
+
             throw ValidationException::withMessages([
                 'nim' => "Terlalu banyak percobaan masuk. Coba lagi dalam {$seconds} detik.",
             ]);
@@ -57,6 +59,6 @@ class AuthenticatedSessionController extends Controller
 
     private function rateLimitKey(string $nim, ?string $ipAddress): string
     {
-        return 'mahasiswa-login:'.Str::lower($nim).'|'.$ipAddress;
+        return 'mahasiswa-login:'.Str::lower(trim($nim)).'|'.$ipAddress;
     }
 }

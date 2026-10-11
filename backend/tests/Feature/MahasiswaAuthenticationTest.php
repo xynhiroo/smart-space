@@ -132,12 +132,19 @@ class MahasiswaAuthenticationTest extends TestCase
         ]);
 
         $response->assertRedirect(route('mahasiswa.login'))
-            ->assertSessionHasErrors('nim');
+            ->assertSessionHasErrors('nim')
+            ->assertSessionHas('retry_after', function (mixed $value): bool {
+                return is_numeric($value) && (int) $value > 0;
+            });
 
         $this->assertStringContainsString(
             'Terlalu banyak percobaan masuk.',
             session('errors')->first('nim')
         );
+
+        $loginPageResponse = $this->get(route('mahasiswa.login'));
+        $loginPageResponse->assertOk()
+            ->assertSee('Terlalu banyak percobaan. Coba lagi dalam');
     }
 
     public function test_mahasiswa_login_does_not_authenticate_admin_guard(): void

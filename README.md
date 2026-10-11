@@ -51,9 +51,9 @@ CREATE DATABASE smart_space CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    php artisan migrate:fresh --seed
    ```
    > **Catatan Seeder**:
-   > - Mengimpor 10 ruangan fisik dari `database/seed-data/rooms_if.csv`.
-   > - Mengimpor 102 blok jadwal kuliah dari `database/seed-data/schedules_if_gabungan.csv` (terhubung ke tabel `rooms`).
-   > - Mengimpor 8 kalender akademik/pengecualian dari `database/seed-data/calendar_exceptions_ganjil2627.csv`.
+   > - Mengimpor 10 ruangan fisik dari `backend/database/seed-data/rooms_if.csv`.
+   > - Mengimpor 102 blok jadwal kuliah dari `backend/database/seed-data/schedules_if_gabungan.csv` (terhubung ke tabel `rooms`).
+   > - Mengimpor 8 kalender akademik/pengecualian dari `backend/database/seed-data/calendar_exceptions_ganjil2627.csv`.
    > - Mengonfigurasi ambang batas final pada `threshold_settings` (rendah 0-40%, sedang 41-80%, tinggi 81-100%, evaluasi status kosong setelah slot jadwal selesai).
    > - Menginisialisasi akun awal untuk guard `admin` dan `mahasiswa`.
 5. Jalankan server lokal:

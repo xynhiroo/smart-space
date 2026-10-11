@@ -13,7 +13,7 @@ class RoomSeeder extends Seeder
      */
     public function run(): void
     {
-        $filePath = $this->resolveFilePath('rooms_if.csv');
+        $filePath = database_path('seed-data/rooms_if.csv');
 
         if (!File::exists($filePath)) {
             $this->command->error("File CSV tidak ditemukan: {$filePath}");
@@ -46,19 +46,6 @@ class RoomSeeder extends Seeder
 
         fclose($fileHandle);
         $this->command->info('Data ruangan berhasil diimpor dari CSV.');
-    }
-
-    /**
-     * Resolve path to the CSV file across different environments.
-     */
-    private function resolveFilePath(string $filename): string
-    {
-        $backendPath = database_path("seed-data/{$filename}");
-        if (File::exists($backendPath)) {
-            return $backendPath;
-        }
-
-        return base_path("../database/seed-data/{$filename}");
     }
 
     /**

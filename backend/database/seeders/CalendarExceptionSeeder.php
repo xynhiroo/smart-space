@@ -13,7 +13,7 @@ class CalendarExceptionSeeder extends Seeder
      */
     public function run(): void
     {
-        $filePath = $this->resolveFilePath('calendar_exceptions_ganjil2627.csv');
+        $filePath = database_path('seed-data/calendar_exceptions_ganjil2627.csv');
 
         if (!File::exists($filePath)) {
             $this->command->error("File CSV tidak ditemukan: {$filePath}");
@@ -52,18 +52,5 @@ class CalendarExceptionSeeder extends Seeder
 
         fclose($fileHandle);
         $this->command->info("Data kalender akademik berhasil diimpor: {$insertedCount} baris.");
-    }
-
-    /**
-     * Resolve path to the CSV file across different environments.
-     */
-    private function resolveFilePath(string $filename): string
-    {
-        $backendPath = database_path("seed-data/{$filename}");
-        if (File::exists($backendPath)) {
-            return $backendPath;
-        }
-
-        return base_path("../database/seed-data/{$filename}");
     }
 }

@@ -1,4 +1,6 @@
-<x-layouts.guest title="Masuk Mahasiswa">
+@extends('layouts.guest', ['title' => 'Masuk Mahasiswa'])
+
+@section('content')
     <form method="POST" action="{{ route('mahasiswa.login.store') }}" class="space-y-5" x-data="{ showPassword: false, submitting: false }" x-on:submit="submitting = true">
         @csrf
 
@@ -50,4 +52,4 @@
             <span x-text="submitting ? 'Memproses...' : 'Masuk'">Masuk</span>
         </x-primary-button>
     </form>
-</x-layouts.guest>
+@endsection

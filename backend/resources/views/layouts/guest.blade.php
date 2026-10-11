@@ -18,7 +18,7 @@
                 </div>
 
                 <section class="rounded-lg border border-shellstone bg-white p-6 shadow-sm sm:p-8">
-                    {{ $slot }}
+                    @yield('content')
                 </section>
             </div>
         </main>

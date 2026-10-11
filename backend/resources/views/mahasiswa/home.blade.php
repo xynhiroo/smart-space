@@ -1,4 +1,6 @@
-<x-layouts.app>
+@extends('layouts.app')
+
+@section('content')
     <div class="space-y-4">
         <div>
             <p class="text-sm font-medium text-sapphire">NIM: {{ auth('mahasiswa')->user()->nim }}</p>
@@ -9,4 +11,4 @@
             <p>Status ketersediaan ruangan akan tampil di sini</p>
         </div>
     </div>
-</x-layouts.app>
+@endsection

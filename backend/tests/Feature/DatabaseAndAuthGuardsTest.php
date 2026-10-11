@@ -62,8 +62,14 @@ class DatabaseAndAuthGuardsTest extends TestCase
     public function test_rooms_table_is_seeded_with_expected_rooms(): void
     {
         $this->assertGreaterThanOrEqual(10, Room::count());
-        $this->assertNotNull(Room::where('nama_ruangan', 'GU 702')->first());
-        $this->assertNotNull(Room::where('nama_ruangan', 'TA 10.3')->first());
+        $roomGu = Room::where('nama_ruangan', 'GU 702')->first();
+        $roomTa = Room::where('nama_ruangan', 'TA 10.3')->first();
+
+        $this->assertNotNull($roomGu);
+        $this->assertNotNull($roomTa);
+        $this->assertNull($roomGu->kapasitas, 'Kapasitas harus null karena tidak ada di CSV.');
+        $this->assertNull($roomGu->lokasi, 'Lokasi harus null karena catatan di CSV kosong.');
+        $this->assertEquals('tersedia', $roomGu->status);
     }
 
     /**

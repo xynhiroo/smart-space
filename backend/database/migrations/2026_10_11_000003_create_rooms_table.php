@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
             $table->string('nama_ruangan', 50)->unique();
-            $table->integer('kapasitas')->default(30);
+            $table->integer('kapasitas')->nullable();
             $table->string('lokasi', 100)->nullable();
-            $table->string('status', 50)->default('tersedia');
+            $table->string('status', 50)->default('tersedia'); // Default sistem, bukan data dari sumber CSV
             $table->timestamps();
         });
     }

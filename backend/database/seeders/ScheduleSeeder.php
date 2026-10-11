@@ -54,8 +54,8 @@ class ScheduleSeeder extends Seeder
                 // Jika ruangan belum terdaftar, buat record ruangan otomatis
                 $room = Room::create([
                     'nama_ruangan' => $namaRuangan,
-                    'kapasitas' => 30,
-                    'status' => 'tersedia',
+                    'kapasitas' => null,
+                    'status' => 'tersedia', // Default sistem, bukan data dari sumber CSV
                 ]);
             }
 

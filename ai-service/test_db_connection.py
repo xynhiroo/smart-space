@@ -36,7 +36,8 @@ def verify_database_connection():
 
             for room in rooms:
                 lokasi_str = room.lokasi or "-"
-                print(f"{room.id:<4} | {room.nama_ruangan:<12} | {room.kapasitas:<10} | {lokasi_str:<25} | {room.status}")
+                kapasitas_str = str(room.kapasitas) if room.kapasitas is not None else "-"
+                print(f"{room.id:<4} | {room.nama_ruangan:<12} | {kapasitas_str:<10} | {lokasi_str:<25} | {room.status}")
 
             print("-" * 65)
             print("[VERIFIED] AI Service and Laravel shared database connectivity is functional!")

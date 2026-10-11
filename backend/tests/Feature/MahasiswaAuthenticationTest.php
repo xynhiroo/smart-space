@@ -155,6 +155,20 @@ class MahasiswaAuthenticationTest extends TestCase
         );
     }
 
+    public function test_protected_mahasiswa_home_has_prevent_back_cache_headers(): void
+    {
+        $mahasiswa = MahasiswaAccount::where('nim', '3312501036')->firstOrFail();
+
+        $response = $this->actingAs($mahasiswa, 'mahasiswa')
+            ->get(route('mahasiswa.home'));
+
+        $response->assertOk();
+        $cacheControl = (string) $response->headers->get('Cache-Control');
+        $this->assertTrue(str_contains($cacheControl, 'no-store'));
+        $this->assertSame('no-cache', $response->headers->get('Pragma'));
+        $this->assertSame('0', $response->headers->get('Expires'));
+    }
+
     private function rateLimitKey(string $nim): string
     {
         return 'mahasiswa-login:'.$nim.'|127.0.0.1';

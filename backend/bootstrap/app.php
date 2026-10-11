@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
+        ]);
+
         // Mahasiswa auth redirects. Keep this block isolated so Admin auth can add its own rules.
         $middleware->redirectGuestsTo(function (Request $request): ?string {
             return $request->routeIs('mahasiswa.*') ? route('mahasiswa.login') : null;

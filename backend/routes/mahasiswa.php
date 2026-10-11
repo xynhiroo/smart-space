@@ -8,7 +8,7 @@ Route::middleware('guest:mahasiswa')->group(function (): void {
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('mahasiswa.login.store');
 });
 
-Route::middleware('auth:mahasiswa')->group(function (): void {
+Route::middleware(['auth:mahasiswa', 'prevent-back-history'])->group(function (): void {
     Route::get('/ruangan', function () {
         return view('mahasiswa.home');
     })->name('mahasiswa.home');

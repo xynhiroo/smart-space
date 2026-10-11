@@ -8,16 +8,18 @@ use App\Models\MahasiswaAccount;
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\ThresholdSetting;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class DatabaseAndAuthGuardsTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('migrate');
-        $this->artisan('db:seed');
+        $this->seed();
     }
 
     /**

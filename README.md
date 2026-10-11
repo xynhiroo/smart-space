@@ -21,7 +21,7 @@ Platform analitik pemanfaatan dan utilisasi ruang kelas/lab berbasis arsitektur 
 ### 1. Persiapan Database (MySQL)
 Pastikan MySQL service telah aktif (misal melalui XAMPP Control Panel), lalu buat database:
 ```sql
-CREATE DATABASE smart_space CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE smart_space_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ---
@@ -43,6 +43,8 @@ CREATE DATABASE smart_space CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 3. Install dependensi dan generate application key (jika baru di-clone):
    ```bash
+   copy .env.example .env # Windows (PowerShell/CMD)
+   # cp .env.example .env     # Linux / macOS
    composer install
    php artisan key:generate
    ```

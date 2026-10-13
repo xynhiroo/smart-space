@@ -11,8 +11,9 @@ Platform analitik pemanfaatan dan utilisasi ruang kelas/lab berbasis arsitektur 
 
 1. **PHP**: >= 8.2 (ekstensi `pdo_mysql`, `mbstring`, `openssl`, `curl`)
 2. **Composer**: >= 2.x
-3. **Python**: >= 3.10
-4. **MySQL / MariaDB**: v10.4+ (misal via XAMPP di port 3306)
+3. **Node.js dan npm**: gunakan versi aktif proyek untuk asset frontend Vite/Tailwind
+4. **Python**: >= 3.10
+5. **MySQL / MariaDB**: v10.4+ (misal via XAMPP di port 3306)
 
 ---
 
@@ -44,6 +45,7 @@ CREATE DATABASE smart_space CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 3. Install dependensi dan generate application key (jika baru di-clone):
    ```bash
    composer install
+   npm install
    php artisan key:generate
    ```
 4. Jalankan migrasi dan seeder:
@@ -62,9 +64,18 @@ CREATE DATABASE smart_space CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
    Aplikasi backend berjalan di: `http://127.0.0.1:8000`
 
-6. Menjalankan pengujian otomatis:
+6. Jalankan asset frontend untuk pengembangan:
    ```bash
-   php artisan test tests/Feature/DatabaseAndAuthGuardsTest.php
+   npm run dev
+   ```
+   Untuk build produksi:
+   ```bash
+   npm run build
+   ```
+
+7. Menjalankan pengujian otomatis:
+   ```bash
+   php artisan test
    ```
 
 ---
@@ -112,6 +123,8 @@ CREATE DATABASE smart_space CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ---
 
 ## 🔐 Akun Default untuk Pengujian Guard Autentikasi
+
+> Akun dummy mahasiswa hanya disediakan untuk kebutuhan pengembangan dan pengujian lokal.
 
 | Guard | Identifier | Password Default | Keterangan |
 |---|---|---|---|

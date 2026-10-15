@@ -102,6 +102,7 @@
             inputmode="numeric"
             maxlength="10"
             placeholder="Masukkan NIM"
+            :show-error="false"
         />
 
         <div class="space-y-2">
@@ -115,6 +116,7 @@
                     placeholder="Masukkan password"
                     x-bind:type="showPassword ? 'text' : 'password'"
                     class="pr-28"
+                    :show-error="false"
                 />
 
                 <button

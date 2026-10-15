@@ -17,15 +17,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
         ]);
 
-        // Mahasiswa auth redirects. Keep this block isolated so Admin auth can add its own rules.
+            // Auth redirects per area: admin.* dan mahasiswa.*
         $middleware->redirectGuestsTo(function (Request $request): ?string {
+            if ($request->routeIs('admin.*')) {
+                return route('admin.login');
+            }
+
             return $request->routeIs('mahasiswa.*') ? route('mahasiswa.login') : null;
         });
 
         $middleware->redirectUsersTo(function (Request $request): ?string {
+            if ($request->routeIs('admin.*')) {
+                return route('admin.dashboard');
+            }
+
             return Auth::guard('mahasiswa')->check() ? route('mahasiswa.home') : null;
-        });
-    })
+    });
+        })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

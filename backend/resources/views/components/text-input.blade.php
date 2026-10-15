@@ -3,6 +3,7 @@
     'name',
     'type' => 'text',
     'value' => null,
+    'showError' => true,
 ])
 
 @php
@@ -27,7 +28,9 @@
         {{ $attributes->except(['id'])->merge(['class' => $inputClasses, 'aria-invalid' => $hasError ? 'true' : 'false']) }}
     >
 
-    @error($name)
-        <p class="mt-2 text-sm text-danger">{{ $message }}</p>
-    @enderror
+    @if ($showError)
+        @error($name)
+            <p class="mt-2 text-sm text-danger">{{ $message }}</p>
+        @enderror
+    @endif
 </div>

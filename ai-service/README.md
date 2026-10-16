@@ -30,17 +30,38 @@ DATABASE_URL=mysql+pymysql://root:@127.0.0.1:3306/smart_space
 ```
 
 ## Menjalankan Pengujian (pytest)
-Pengujian otomatis menggunakan `pytest` untuk memverifikasi integritas model SQLAlchemy terhadap skema basis data:
+
+### 1. Menyiapkan Basis Data Pengujian (`smart_space_test`)
+Pengujian otomatis di `ai-service` **selalu menggunakan basis data terisolasi `smart_space_test`**, bukan database development `smart_space`.
+
+Pastikan database `smart_space_test` sudah dibuat di MySQL dan skema tabel dimigrasi oleh Laravel:
+```bash
+# Buat database jika belum ada (lewat MySQL client / phpMyAdmin):
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS smart_space_test;"
+
+# Jalankan migrasi skema Laravel ke database test:
+# Dari direktori backend/ (PowerShell / Windows):
+$env:DB_DATABASE="smart_space_test"; php artisan migrate
+
+# Atau dari direktori backend/ (Bash / Linux / macOS):
+DB_DATABASE=smart_space_test php artisan migrate
+```
+
+> **Catatan Pengaman Database:**
+> Pengujian dilengkapi pengaman aktif di `conftest.py`. Pengujian akan langsung dibatalkan jika nama basis data target tidak berakhiran `_test`, sehingga mencegah risiko manipulasi atau penghapusan data pada database pengembangan/produksi.
+
+### 2. Menjalankan Pengujian
+Jalankan `pytest` dari root direktori repository atau langsung dari folder `ai-service`:
 
 ```bash
 # Dari root repo:
 python -m pytest ai-service/tests
 
-# Atau dari folder ai-service:
+# Atau dari folder ai-service/:
 cd ai-service
-pytest
+pytest -v
 # atau
-python -m pytest
+python -m pytest -v
 ```
 
-Hasil pengujian memastikan model `OccupancyLog`, `ClassificationResult`, `Room`, `Schedule`, dan `ThresholdSetting` dapat melakukan query ke basis data bersama tanpa kesalahan skema.
+Hasil pengujian memverifikasi bahwa model `OccupancyLog`, `ClassificationResult`, `Room`, `Schedule`, dan `ThresholdSetting` berinteraksi dengan basis data bersama secara benar dan terisolasi dalam transaksi tanpa meninggalkan data sisa.

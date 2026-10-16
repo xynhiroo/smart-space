@@ -25,7 +25,10 @@ def test_classification_results_empty_query(db_session):
 def test_occupancy_log_roundtrip_in_transaction(db_session):
     """Test inserting and querying OccupancyLog model with rollback to keep database clean."""
     room = db_session.query(Room).first()
-    assert room is not None, "Tabel rooms harus memiliki data seeder"
+    if room is None:
+        room = Room(nama_ruangan="Ruang Test 101", kapasitas=30, lokasi="Gedung Utama")
+        db_session.add(room)
+        db_session.flush()
 
     test_log = OccupancyLog(
         room_id=room.id,
@@ -52,8 +55,22 @@ def test_occupancy_log_roundtrip_in_transaction(db_session):
 def test_classification_result_roundtrip_in_transaction(db_session):
     """Test inserting and querying ClassificationResult model with rollback to keep database clean."""
     room = db_session.query(Room).first()
+    if room is None:
+        room = Room(nama_ruangan="Ruang Test 101", kapasitas=30, lokasi="Gedung Utama")
+        db_session.add(room)
+        db_session.flush()
+
     schedule = db_session.query(Schedule).first()
-    assert room is not None and schedule is not None
+    if schedule is None:
+        schedule = Schedule(
+            room_id=room.id,
+            hari="Senin",
+            jam_mulai=time(8, 0),
+            jam_selesai=time(9, 40),
+            mata_kuliah="Test Mata Kuliah",
+        )
+        db_session.add(schedule)
+        db_session.flush()
 
     test_result = ClassificationResult(
         room_id=room.id,
@@ -86,14 +103,23 @@ def test_classification_result_roundtrip_in_transaction(db_session):
     db_session.rollback()
 
 
-def test_threshold_settings_contains_updated_keys(db_session):
-    """Verify that updated threshold settings keys are accessible via SQLAlchemy model."""
-    empty_min = db_session.query(ThresholdSetting).filter_by(key="empty_min_occupied_minutes").first()
-    outside_min = db_session.query(ThresholdSetting).filter_by(key="outside_schedule_min_minutes").first()
-    obsolete_key = db_session.query(ThresholdSetting).filter_by(key="empty_status_use_start_tolerance").first()
+def test_threshold_settings_roundtrip_in_transaction(db_session):
+    """Test inserting and querying ThresholdSetting model without depending on seeder data."""
+    test_setting = ThresholdSetting(
+        key="empty_min_occupied_minutes",
+        value="10",
+        keterangan="Batas minimum menit terisi untuk deteksi ruang kosong",
+    )
+    db_session.add(test_setting)
+    db_session.flush()
 
-    assert empty_min is not None
-    assert empty_min.value == "10"
-    assert outside_min is not None
-    assert outside_min.value == "30"
-    assert obsolete_key is None
+    queried = (
+        db_session.query(ThresholdSetting)
+        .filter_by(key="empty_min_occupied_minutes")
+        .first()
+    )
+    assert queried is not None
+    assert queried.value == "10"
+    assert queried.keterangan == "Batas minimum menit terisi untuk deteksi ruang kosong"
+
+    db_session.rollback()

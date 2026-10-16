@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <title>Dashboard Admin</title>
-</head>
-<body>
-    <h1>Dashboard Admin</h1>
-    <p>Selamat datang, {{ auth('admin')->user()->nama }}.</p>
+@extends('layouts.admin', ['title' => 'Dashboard'])
 
-    <form method="POST" action="{{ route('admin.logout') }}">
-        @csrf
-        <button type="submit">Keluar</button>
-    </form>
-</body>
-</html>
+@section('content')
+    <h1 class="text-2xl font-semibold">Dashboard Admin</h1>
+    <p class="mt-2">Selamat datang, {{ auth('admin')->user()->nama }}.</p>
+
+    <div class="mt-6">
+        <a href="{{ route('admin.rooms.index') }}" class="inline-block rounded-md border border-shellstone bg-white px-4 py-3 font-semibold hover:bg-swan">
+            Data Ruangan
+        </a>
+    </div>
+@endsection

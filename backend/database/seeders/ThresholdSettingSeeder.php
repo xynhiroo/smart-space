@@ -49,9 +49,14 @@ class ThresholdSettingSeeder extends Seeder
                 'keterangan' => 'Kebijakan evaluasi status ruang kosong: dievaluasi setelah jam terjadwal selesai, bukan durasi toleransi awal slot',
             ],
             [
-                'key' => 'empty_status_use_start_tolerance',
-                'value' => 'false',
-                'keterangan' => 'Flag toleransi durasi di awal slot (false = dievaluasi setelah slot selesai)',
+                'key' => 'empty_min_occupied_minutes',
+                'value' => '10',
+                'keterangan' => 'Durasi terisi minimum selama jam terjadwal agar sesi tidak dianggap kosong, menit, asumsi tim',
+            ],
+            [
+                'key' => 'outside_schedule_min_minutes',
+                'value' => '30',
+                'keterangan' => 'Durasi minimum episode pemakaian di luar jadwal agar ditandai, menit, asumsi tim',
             ],
         ];
 

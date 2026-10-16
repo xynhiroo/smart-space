@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Admin\RoomController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->group(function (): void {
@@ -15,5 +16,9 @@ Route::prefix('admin')->group(function (): void {
         })->name('admin.dashboard');
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
+
+        Route::resource('rooms', RoomController::class)
+            ->except('show')
+            ->names('admin.rooms');
     });
 });

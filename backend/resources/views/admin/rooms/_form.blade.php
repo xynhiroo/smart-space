@@ -24,12 +24,13 @@
 />
 
 <div class="space-y-2">
-    <label for="status" class="block text-sm font-semibold">Status</label>
+    <label for="status" class="block text-sm font-semibold">Kondisi ruangan</label>
     <select id="status" name="status" required class="w-full rounded-md border border-shellstone bg-white px-4 py-3 text-royal focus:outline-none focus:ring-2 focus:ring-royal">
         @foreach (['tersedia', 'tidak tersedia'] as $option)
             <option value="{{ $option }}" @selected(old('status', $room?->status ?? 'tersedia') === $option)>{{ $option }}</option>
         @endforeach
     </select>
+    <p class="text-xs text-sapphire">Kondisi master ruangan (mis. sedang diperbaiki). Bukan status pemakaian kosong/terisi, karena itu dihitung otomatis oleh sistem dari data okupansi dan jadwal.</p>
     @error('status')
         <p class="text-sm text-red-700">{{ $message }}</p>
     @enderror

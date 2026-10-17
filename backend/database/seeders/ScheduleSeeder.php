@@ -24,7 +24,7 @@ class ScheduleSeeder extends Seeder
         $fileHandle = fopen($filePath, 'r');
         $header = fgetcsv($fileHandle);
 
-        $insertedCount = 0;
+        $processedCount = 0;
         $skippedCount = 0;
 
         while (($row = fgetcsv($fileHandle)) !== false) {
@@ -59,21 +59,25 @@ class ScheduleSeeder extends Seeder
                 ]);
             }
 
-            Schedule::create([
-                'room_id' => $room->id,
-                'hari' => $hari,
-                'jam_mulai' => $jamMulai,
-                'jam_selesai' => $jamSelesai,
-                'mata_kuliah' => $mataKuliah,
-                'kelas' => $kelas,
-                'dosen' => $dosen,
-                'shift' => $shift,
-            ]);
+            Schedule::updateOrCreate(
+                [
+                    'room_id' => $room->id,
+                    'hari' => $hari,
+                    'jam_mulai' => $jamMulai,
+                ],
+                [
+                    'jam_selesai' => $jamSelesai,
+                    'mata_kuliah' => $mataKuliah,
+                    'kelas' => $kelas,
+                    'dosen' => $dosen,
+                    'shift' => $shift,
+                ]
+            );
 
-            $insertedCount++;
+            $processedCount++;
         }
 
         fclose($fileHandle);
-        $this->command->info("Data jadwal berhasil diimpor: {$insertedCount} baris, {$skippedCount} diabaikan.");
+        $this->command?->info("Data jadwal berhasil diproses: {$processedCount} baris, {$skippedCount} diabaikan.");
     }
 }

@@ -219,11 +219,46 @@ class RoomManagementTest extends TestCase
         $room = $this->room();
 
         DB::table('schedules')->insert([
+            [
+                'room_id' => $room->id,
+                'hari' => 'Senin',
+                'jam_mulai' => '08:00:00',
+                'jam_selesai' => '10:00:00',
+                'mata_kuliah' => 'Mata Kuliah Uji 1',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'room_id' => $room->id,
+                'hari' => 'Selasa',
+                'jam_mulai' => '10:00:00',
+                'jam_selesai' => '12:00:00',
+                'mata_kuliah' => 'Mata Kuliah Uji 2',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $this->actingAs($this->admin(), 'admin')
+            ->delete(route('admin.rooms.destroy', $room))
+            ->assertRedirect(route('admin.rooms.index'))
+            ->assertSessionHasErrors([
+                'room' => "Ruangan {$room->nama_ruangan} tidak dapat dihapus karena masih memiliki 2 jadwal dan 0 data riwayat. Data ruangan yang sudah memiliki jadwal atau riwayat dipertahankan agar analitik tidak hilang.",
+            ]);
+
+        $this->assertDatabaseHas('rooms', ['id' => $room->id]);
+        $this->assertEquals(2, DB::table('schedules')->where('room_id', $room->id)->count());
+    }
+
+    public function test_room_with_occupancy_logs_cannot_be_deleted(): void
+    {
+        $room = $this->room();
+
+        DB::table('occupancy_logs')->insert([
             'room_id' => $room->id,
-            'hari' => 'Senin',
-            'jam_mulai' => '08:00:00',
-            'jam_selesai' => '10:00:00',
-            'mata_kuliah' => 'Mata Kuliah Uji',
+            'slot_mulai' => '2026-10-17 08:00:00',
+            'is_occupied' => true,
+            'source' => 'dummy',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -231,10 +266,62 @@ class RoomManagementTest extends TestCase
         $this->actingAs($this->admin(), 'admin')
             ->delete(route('admin.rooms.destroy', $room))
             ->assertRedirect(route('admin.rooms.index'))
-            ->assertSessionHasErrors('room');
+            ->assertSessionHasErrors([
+                'room' => "Ruangan {$room->nama_ruangan} tidak dapat dihapus karena masih memiliki 0 jadwal dan 1 data riwayat. Data ruangan yang sudah memiliki jadwal atau riwayat dipertahankan agar analitik tidak hilang.",
+            ]);
 
         $this->assertDatabaseHas('rooms', ['id' => $room->id]);
-        $this->assertDatabaseHas('schedules', ['room_id' => $room->id]);
+        $this->assertEquals(1, DB::table('occupancy_logs')->where('room_id', $room->id)->count());
+    }
+
+    public function test_room_with_classification_results_cannot_be_deleted(): void
+    {
+        $room = $this->room();
+
+        DB::table('classification_results')->insert([
+            'room_id' => $room->id,
+            'schedule_id' => null,
+            'tanggal' => '2026-10-17',
+            'waktu_mulai' => '08:00:00',
+            'waktu_selesai' => '09:40:00',
+            'status' => 'dipakai_di_luar_jadwal',
+            'menit_terjadwal' => 0,
+            'menit_terpakai' => 100,
+            'utilisasi_pct' => null,
+            'rule_id' => 'R03',
+            'penjelasan' => 'Ruang dipakai di luar jadwal',
+            'computed_at' => now(),
+        ]);
+
+        $this->actingAs($this->admin(), 'admin')
+            ->delete(route('admin.rooms.destroy', $room))
+            ->assertRedirect(route('admin.rooms.index'))
+            ->assertSessionHasErrors([
+                'room' => "Ruangan {$room->nama_ruangan} tidak dapat dihapus karena masih memiliki 0 jadwal dan 1 data riwayat. Data ruangan yang sudah memiliki jadwal atau riwayat dipertahankan agar analitik tidak hilang.",
+            ]);
+
+        $this->assertDatabaseHas('rooms', ['id' => $room->id]);
+        $this->assertEquals(1, DB::table('classification_results')->where('room_id', $room->id)->count());
+    }
+
+    public function test_room_form_and_index_display_kondisi_ruangan_label_and_help_text(): void
+    {
+        $room = $this->room();
+
+        $this->actingAs($this->admin(), 'admin')
+            ->get(route('admin.rooms.index'))
+            ->assertOk()
+            ->assertSee('Kondisi ruangan');
+
+        $this->get(route('admin.rooms.create'))
+            ->assertOk()
+            ->assertSee('Kondisi ruangan')
+            ->assertSee('Kondisi master ruangan (mis. sedang diperbaiki). Bukan status pemakaian kosong/terisi, karena itu dihitung otomatis oleh sistem dari data okupansi dan jadwal.');
+
+        $this->get(route('admin.rooms.edit', $room))
+            ->assertOk()
+            ->assertSee('Kondisi ruangan')
+            ->assertSee('Kondisi master ruangan (mis. sedang diperbaiki). Bukan status pemakaian kosong/terisi, karena itu dihitung otomatis oleh sistem dari data okupansi dan jadwal.');
     }
 
     private function admin(): AdminAccount

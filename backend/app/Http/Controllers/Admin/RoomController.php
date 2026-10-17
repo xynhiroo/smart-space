@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoomRequest;
 use App\Models\Room;
-use App\Models\Schedule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -48,11 +47,10 @@ class RoomController extends Controller
 
     public function destroy(Room $room): RedirectResponse
     {
-        // Jadwal ikut terhapus kalau ruangan dihapus (cascadeOnDelete), jadi dicegah.
-        if (Schedule::where('room_id', $room->id)->exists()) {
+        if ($reason = $room->getDeletionBlockReason()) {
             return redirect()
                 ->route('admin.rooms.index')
-                ->withErrors(['room' => "Ruangan {$room->nama_ruangan} masih punya jadwal, jadi tidak bisa dihapus."]);
+                ->withErrors(['room' => $reason]);
         }
 
         $room->delete();

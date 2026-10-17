@@ -105,6 +105,8 @@ class DatabaseAndAuthGuardsTest extends TestCase
         $highMin = ThresholdSetting::where('key', 'utilization_high_min')->first();
         $highMax = ThresholdSetting::where('key', 'utilization_high_max')->first();
         $emptyTiming = ThresholdSetting::where('key', 'empty_status_evaluation_timing')->first();
+        $emptyMinOccupied = ThresholdSetting::where('key', 'empty_min_occupied_minutes')->first();
+        $outsideScheduleMin = ThresholdSetting::where('key', 'outside_schedule_min_minutes')->first();
         $emptyTolerance = ThresholdSetting::where('key', 'empty_status_use_start_tolerance')->first();
 
         $this->assertNotNull($lowMin);
@@ -115,6 +117,10 @@ class DatabaseAndAuthGuardsTest extends TestCase
         $this->assertEquals('81', $highMin->value);
         $this->assertEquals('100', $highMax->value);
         $this->assertEquals('after_schedule_finished', $emptyTiming->value);
-        $this->assertEquals('false', $emptyTolerance->value);
+        $this->assertNotNull($emptyMinOccupied);
+        $this->assertEquals('10', $emptyMinOccupied->value);
+        $this->assertNotNull($outsideScheduleMin);
+        $this->assertEquals('30', $outsideScheduleMin->value);
+        $this->assertNull($emptyTolerance);
     }
 }

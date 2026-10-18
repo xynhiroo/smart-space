@@ -2,42 +2,36 @@
 
 Format mengikuti issue yang sudah ada di repo (User Story, Acceptance Criteria, DOD). Judul issue memakai pola `[SS-S1-NN] Judul`. Dua issue sudah ada dan perlu diperbarui isinya (#40 dan #41); enam lainnya dibuat baru. Assignee sesuai kolom Pemilik.
 
-## [SS-S1-07] Kontrak data dan migrasi tabel AI
+## [SS-S1-05] Impor data jadwal real Prodi IF (Perbaikan Idempotensi Seeder)
 
-- Tindakan: PERBARUI issue #40 (ganti judul dan isi)
-- Assignee (username GitHub): xynhiroo (reviewer: Muradika)
+- Tindakan: PERBARUI issue #38 (buka kembali dengan perbaikan di PR #57)
+- Assignee (username GitHub): Muradika (reviewer: xynhiroo)
 - Milestone: Sprint 1 - Inti AI (sampai 30 Okt)
-- Branch: `feature/ss1-07-kontrak-data-migrasi`
-- Target: PR Jum 16 Okt, merge Sen 19 Okt
-- Bergantung pada: SS1-03 (selesai)
+- Branch: `feature/ss1-05-seeder-jadwal-idempoten`
 
 Salin isi di bawah garis ini ke badan issue:
 
 ---
 
 User Story:
-Sebagai tim pengembang, saya ingin menyepakati kontrak data dan skema tabel AI (okupansi dan hasil klasifikasi), sehingga generator, sistem pakar, dan API dapat dikerjakan paralel tanpa salah paham.
+Sebagai tim pengembang, saya ingin seeder jadwal bersifat idempoten dan terlindungi oleh unique index slot jadwal, sehingga penjalanan ulang seeder tidak menduplikasi data atau merusak integritas jadwal.
 
 Acceptance Criteria:
 
-- Tulis docs/DATA_CONTRACT.md: slot 10 menit, jam operasional 07.00-23.00 (96 slot per hari), jeda 17.00-17.10 tidak dievaluasi, arti is_occupied, zona waktu WIB.
-- Catat definisi operasional final: sesi dinilai setelah jam terjadwal berakhir; status kosong meski terjadwal bila menit_terpakai < empty_min_occupied_minutes (awal 10); sesuai jadwal bila sebaliknya; dipakai di luar jadwal bila ada episode okupansi di luar semua jendela jadwal ruang itu, dalam jam operasional, dengan durasi >= outside_schedule_min_minutes (awal 30). Kedua nilai awal adalah asumsi tim yang divalidasi dengan manpro.
-- Granularitas final: satu baris classification_results per ruang per sesi per tanggal; episode di luar jadwal menjadi baris dengan schedule_id kosong.
-- Migrasi Laravel occupancy_logs: id, room_id, slot_mulai, is_occupied, source (default dummy); unik pada room_id + slot_mulai.
-- Migrasi Laravel classification_results: id, room_id, schedule_id (boleh kosong), tanggal, waktu_mulai, waktu_selesai, status, menit_terjadwal, menit_terpakai, utilisasi_pct (kosong bila menit_terjadwal = 0), rule_id, penjelasan, computed_at.
-- Perbarui ThresholdSettingSeeder: tambah empty_min_occupied_minutes (10) dan outside_schedule_min_minutes (30); hapus empty_status_use_start_tolerance (tidak ada di PRD dan tidak dipakai); sesuaikan test threshold yang ada.
-- Tetapkan antarmuka fungsi (nama, parameter, bentuk hasil) untuk klasifikasi sesi dan penghitungan utilisasi di DATA_CONTRACT.md, agar SS1-10 dan SS1-11 dapat dikerjakan paralel.
-- Tambahkan model SQLAlchemy yang sesuai di ai-service/app/models.py.
-- Masukkan PRD v1.1 ke docs/ (menggantikan v1.0).
+- ScheduleSeeder menggunakan `updateOrCreate` pada kombinasi (`room_id`, `hari`, `jam_mulai`).
+- Migrasi menambahkan unique constraint/index (`room_id`, `hari`, `jam_mulai`) pada tabel `schedules` (PR #57).
+- Menjalankan `php artisan db:seed --class=ScheduleSeeder` berulang kali menghasilkan tepat 102 jadwal tanpa duplikasi.
 
 DOD:
 
-- [ ] php artisan migrate:fresh --seed sukses.
-- [ ] Test skema lulus di database smart_space_test.
-- [ ] Model SQLAlchemy dapat membaca tabel baru.
-- [ ] DATA_CONTRACT.md disetujui Dika di PR.
+- [ ] php artisan migrate:fresh --seed sukses tanpa bentrok index.
+- [ ] ScheduleSeederTest dan integritas skema lulus.
 - [ ] Memenuhi DoD di docs/ROADMAP.md bagian 7.
 - [ ] Kode sudah direview rekan satu tim.
+
+## [SS-S1-07] Kontrak data dan migrasi tabel AI
+
+Selesai (merged), tidak perlu ditempel.
 
 ## [SS-S1-08] Generator data dummy okupansi historis
 
@@ -57,14 +51,15 @@ Sebagai Sistem, saya ingin membangkitkan data dummy okupansi yang menyerupai pol
 
 Acceptance Criteria:
 
-- Modul ai-service/app/generator/ membaca rooms, schedules, calendar_exceptions dari DB; rentang tanggal (awal 2026-09-07 sampai tanggal berjalan) dan seed dapat diatur lewat CLI.
+- Modul ai-service/app/generator/ membaca rooms, schedules, calendar_exceptions dari DB; rentang tanggal default satu semester penuh (2026-09-07 sampai 2027-01-22) dan seed dapat diatur lewat CLI.
+- Normalisasi nama hari kalender akademik dan jadwal menggunakan modul bersama app/calendar_utils.py.
 - Perilaku per sesi: hadir tepat waktu, terlambat, selesai lebih awal, tidak hadir; parameter dapat diubah.
 - Efek kalender: libur tidak ada sesi; masa ujian dan minggu pengganti berpola berbeda.
 - Pemakaian di luar jadwal: peluang rendah di ruang biasa, sedikit lebih tinggi di GU 701, GU 705, GU 707.
 - Skenario sesi tidak berlangsung lalu ruang dipinjam kegiatan lain lewat TU (peluang kecil): okupansi muncul pada jendela jadwal.
 - Noise (nilai awal, asumsi): salah deteksi 1% per slot dan slot hilang 2%; jeda 17.00-17.10 tidak diisi.
-- Dua set data dengan seed berbeda: set dev (merancang dan menyetel aturan) dan set test (uji), ditandai jelas.
-- Tulis ke occupancy_logs (source=dummy) dan ke berkas ground_truth_*.csv di luar DB, tidak dibaca sistem pakar. Kolom: tanggal, room_id, schedule_id, status_benar (yang akan disimpulkan pengamat sempurna dari okupansi), penyebab (kelas_berlangsung, tidak_hadir, dipinjam_kegiatan_lain, dan seterusnya).
+- Dua set data dengan seed berbeda: set dev (`smart_space_ai_dev`, seed 1001) dan set test (`smart_space_ai_test`, seed 2002), ditandai jelas.
+- Tulis ke occupancy_logs (source=dummy) dan ke berkas ground truth di `ai-service/data/ground_truth/` (ground_truth_dev.csv dan ground_truth_test.csv) di luar DB, tidak dibaca sistem pakar. Kolom: tanggal, room_id, schedule_id, waktu_mulai, waktu_selesai, status_benar, penyebab.
 - Tulis docs/DATA_CARD.md: asumsi, parameter, skenario, keterbatasan (termasuk kasus dipinjam TU yang tidak terbedakan tanpa data PENRU).
 
 DOD:
@@ -96,10 +91,11 @@ Acceptance Criteria:
 
 - Basis pengetahuan: aturan IF-THEN ber-rule_id (R01, R02, dst) terpisah dari mesin inferensi; Ruang dan Sesi direpresentasikan sebagai frame (slot: nama, tipe open-space, jadwal).
 - Semua ambang dibaca dari threshold_settings (empty_min_occupied_minutes, outside_schedule_min_minutes, batas utilisasi), tanpa angka yang ditulis langsung di kode.
+- Normalisasi dan pencocokan nama hari pada jadwal menggunakan modul bersama app/calendar_utils.py.
 - Mesin inferensi forward chaining deterministik dari fakta (jadwal, okupansi, waktu evaluasi) ke status.
 - Tiga status sesuai definisi operasional di DATA_CONTRACT.md; jeda 17.00-17.10 dan di luar jam operasional tidak dievaluasi; episode di luar jadwal ditandai untuk Admin (FR-10).
 - Mekanisme penjelasan: tiap hasil menyimpan rule_id dan kalimat penjelasan Bahasa Indonesia. Penjelasan status kosong boleh menyebut bahwa ruang berpotensi dimanfaatkan kegiatan lain lewat peminjaman di TU (informasi saja, bukan fitur booking).
-- Menulis hasil sesuai skema classification_results dengan antarmuka fungsi dari SS1-07.
+- Menulis hasil sesuai skema classification_results dengan antarmuka fungsi murni berbahasa Indonesia (mengikuti gaya modul utilisasi SS1-10: `klasifikasikan_sesi`, `deteksi_pemakaian_luar_jadwal`, `klasifikasikan_hari`) dan hasil evaluasi dapat dipetakan langsung ke tipe `Sesi` untuk penghitungan utilisasi.
 - Unit test per aturan dan per kasus batas, termasuk sesi yang berakhir tepat di batas ambang.
 
 DOD:
@@ -113,34 +109,7 @@ DOD:
 
 ## [SS-S1-10] Utilisasi dan statistik efisiensi ruangan
 
-- Tindakan: BUAT issue baru
-- Assignee (username GitHub): Muradika (reviewer: xynhiroo)
-- Milestone: Sprint 1 - Inti AI (sampai 30 Okt)
-- Branch: `feature/ss1-10-utilisasi-statistik`
-- Target: PR Jum 23 Okt, merge Sen 26 Okt
-- Bergantung pada: SS1-07 (skema dan antarmuka fungsi). Mulai Rab 21 Okt.
-
-Salin isi di bawah garis ini ke badan issue:
-
----
-
-User Story:
-Sebagai Admin, saya ingin melihat tingkat utilisasi dan statistik efisiensi tiap ruangan, sehingga keputusan pemanfaatan ruang berbasis data.
-
-Acceptance Criteria:
-
-- Utilisasi = (jam benar-benar terpakai / jam terjadwal) x 100% per ruang per periode (hari, minggu, semester berjalan).
-- Kategori rendah (0-40), sedang (41-80), tinggi (81-100) dari threshold_settings; tangani celah desimal (usulan: <=40 rendah, <=80 sedang, selebihnya tinggi) dan jam terjadwal nol.
-- Statistik efisiensi: rata-rata, minimum, maksimum per ruang; selisih jam terjadwal dan terpakai; korelasi Pearson dan Spearman antara jam terjadwal dan terpakai antar ruang (catat bahwa jumlah ruang hanya 10).
-- Unit test dengan hitungan manual.
-
-DOD:
-
-- [ ] Hasil cocok dengan hitungan manual pada data contoh.
-- [ ] Kasus jam terjadwal nol dan nilai batas teruji.
-- [ ] Kategori memakai ambang dari DB.
-- [ ] Memenuhi DoD di docs/ROADMAP.md bagian 7.
-- [ ] Kode sudah direview rekan satu tim.
+Selesai (merged), tidak perlu ditempel.
 
 ## [SS-S1-11] FastAPI dan integrasi database
 
@@ -162,7 +131,7 @@ Acceptance Criteria:
 
 - Endpoint: GET /health, POST /classify (rentang tanggal, menulis classification_results), GET /results, GET /utilization.
 - Idempoten: menjalankan ulang rentang yang sama mengganti hasil, tidak menggandakan baris.
-- Membaca rooms, schedules, threshold_settings dari MySQL; hanya menulis occupancy_logs dan classification_results.
+- Membaca rooms, schedules, threshold_settings dari MySQL; memetakan key threshold ke parameter fungsi (mis. `utilization_low_max` ke `batas_rendah`, `utilization_medium_max` ke `batas_sedang`); mengintegrasikan fungsi analitik nyata (`hitung_statistik_ruang`, `tentukan_kategori`) dan sistem pakar; hanya menulis ke `occupancy_logs` dan `classification_results`.
 - Konfigurasi dari .env; dokumentasi Swagger; test dengan TestClient; README cara menjalankan.
 
 DOD:
@@ -192,10 +161,10 @@ Sebagai tim pengembang, saya ingin mengukur akurasi sistem pakar terhadap label 
 
 Acceptance Criteria:
 
-- Notebook ai-service/notebooks/01_validasi_sistem_pakar.ipynb: jalankan pada set test.
+- Notebook ai-service/notebooks/01_validasi_sistem_pakar.ipynb: membaca ground truth dari `ai-service/data/ground_truth/ground_truth_test.csv` dan database `smart_space_ai_test`.
 - Confusion matrix 3 kelas; precision, recall, F1 per kelas; accuracy.
 - Analisis kesalahan: kapan dan mengapa aturan salah (terutama akibat noise); uji sensitivitas terhadap tingkat noise.
-- Penyetelan empty_min_occupied_minutes dan outside_schedule_min_minutes hanya pada set dev, lalu dievaluasi sekali pada set test; catat dampak nilai ambang terhadap precision dan recall.
+- Penyetelan empty_min_occupied_minutes dan outside_schedule_min_minutes hanya pada set dev (`smart_space_ai_dev`), lalu dievaluasi sekali pada set test (`smart_space_ai_test`) tanpa kebocoran data; catat dampak nilai ambang terhadap precision dan recall.
 - Bukti bahwa aturan dirancang hanya dari set dev; ringkasan di docs/EVALUASI_AI.md beserta keterbatasan data simulasi.
 
 DOD:
@@ -259,7 +228,7 @@ Sebagai Admin, saya ingin sistem memprediksi sesi terjadwal yang berisiko tidak 
 Acceptance Criteria:
 
 - Dataset fitur per sesi hanya dari informasi sebelum sesi: ruang, hari, jam mulai, durasi, shift, tipe open-space, pekan ke-, dekat libur atau ujian, tingkat kosong ruang itu pada pekan-pekan sebelumnya. Label: status sesi dari classification_results (kosong meski terjadwal vs lainnya).
-- Pembagian kronologis (pekan awal untuk latih, pekan akhir untuk uji) ditambah potongan pekan ujian atau libur sebagai uji tambahan.
+- Pembagian kronologis (pekan awal untuk latih, pekan akhir untuk uji) pada data satu semester penuh memungkinkan pengujian tambahan pada potongan pekan ujian atau libur dengan jumlah sampel kelas positif yang lebih memadai.
 - Baseline: selalu menebak kelas mayoritas; rata-rata historis per ruang.
 - Dua model klasifikasi dari AI5: Decision Tree dan Logistic Regression.
 - Metrik AI6: confusion matrix, accuracy, precision, recall, F1, ROC-AUC; bahas ketidakseimbangan kelas dan pilihan metrik.

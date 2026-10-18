@@ -1,23 +1,23 @@
 # Backlog Smart Space Analytics Platform (PBLIF3-PD08)
 
-Versi 1.1 final, 15 Oktober 2026. Pendamping `docs/ROADMAP.md` dan `docs/PRD_Smart_Space_Analytics_Platform.md` (v1.1). Nomor kartu mengikuti issue GitHub (judul issue berbentuk [SS-S1-NN]). SS1-01 sampai SS1-08 sudah ada; SS1-07 dan SS1-08 memperluas issue #40 dan #41, sedangkan SS1-09 sampai SS1-14 adalah kartu baru.
+Versi 1.2, 18 Oktober 2026. Pendamping `docs/ROADMAP.md` (v1.2) dan `docs/PRD_Smart_Space_Analytics_Platform.md` (v1.2). Nomor kartu mengikuti issue GitHub (judul issue berbentuk [SS-S1-NN]). SS1-01 sampai SS1-08 sudah ada; SS1-07 dan SS1-08 memperluas issue #40 dan #41, sedangkan SS1-09 sampai SS1-14 adalah kartu baru.
 
 Label GitHub yang disarankan: `ai`, `ml`, `laravel`, `docs`, `must`, `pasca-ats`. Milestone: **Sprint 1 - Inti AI (sampai 30 Okt)** dan **Sprint 2 - Finalisasi (setelah ATS)**.
 
 ## 1. Ringkasan
 
-| Kode | Judul | Pemilik | Target | Bergantung pada |
-|---|---|---|---|---|
-| SS1-07 | Kontrak data dan migrasi tabel AI | Rangga | PR Jum 16 Okt, merge Sen 19 Okt | SS1-03 (selesai) |
-| SS1-08 | Generator data dummy okupansi historis | Rangga | PR Rab 21 Okt, merge Kam 22 Okt | SS1-07 |
-| SS1-09 | Sistem pakar klasifikasi status ruangan (Tier 1) | Rangga | PR Sen 26 Okt, merge Sel 27 Okt | SS1-07 (kontrak data) |
-| SS1-10 | Utilisasi dan statistik efisiensi ruangan | Dika | PR Jum 23 Okt, merge Sen 26 Okt | SS1-07 (skema dan antarmuka fungsi) |
-| SS1-11 | FastAPI dan integrasi database | Dika | PR Rab 28 Okt, merge Kam 29 Okt | SS1-07 (antarmuka fungsi), SS1-09, SS1-10 |
-| SS1-12 | Validasi akurasi sistem pakar | Dika | PR Kam 29 Okt, merge Jum 30 Okt | SS1-08, SS1-09 |
-| SS1-13 | Dokumen rancangan AI dan bahan presentasi | Rangga dan Dika | Draf Jum 23 Okt, final Jum 6 Nov (cadangan), latihan 2-6 Nov | Berjalan paralel dengan SS1-07 sampai SS1-12 |
-| SS1-14 | Model ML: risiko sesi terjadwal kosong | Rangga | Mulai Sel 27 Okt, PR Kam 29 Okt, merge Jum 30 Okt | SS1-08, SS1-09 (label status) |
+| Kode | Judul | Pemilik | Target | Bergantung pada | Priority | Size | Status |
+|---|---|---|---|---|---|---|---|
+| SS1-07 | Kontrak data dan migrasi tabel AI | Rangga | PR Jum 16 Okt, merge Sen 19 Okt | SS1-03 (selesai) | P0 | M (5) | Done (PR #55 merged) |
+| SS1-08 | Generator data dummy okupansi historis | Rangga | PR Rab 21 Okt, merge Kam 22 Okt | SS1-07 | P0 | L (8) | Ready for Review |
+| SS1-09 | Sistem pakar klasifikasi status ruangan (Tier 1) | Rangga | PR Sen 26 Okt, merge Sel 27 Okt | SS1-07 (kontrak data) | P0 | L (8) | Sprint Backlog |
+| SS1-10 | Utilisasi dan statistik efisiensi ruangan | Dika | PR Jum 23 Okt, merge Sen 26 Okt | SS1-07 (skema dan antarmuka fungsi) | P1 | S (3) | Done (PR #56 merged) |
+| SS1-11 | FastAPI dan integrasi database | Dika | PR Rab 28 Okt, merge Kam 29 Okt | SS1-07 (antarmuka fungsi), SS1-09, SS1-10 | P1 | M (5) | Sprint Backlog |
+| SS1-12 | Validasi akurasi sistem pakar | Dika | PR Kam 29 Okt, merge Jum 30 Okt | SS1-08, SS1-09 | P1 | M (5) | Sprint Backlog |
+| SS1-13 | Dokumen rancangan AI dan bahan presentasi | Rangga dan Dika | Draf Jum 23 Okt, final Jum 6 Nov (cadangan), latihan 2-6 Nov | Berjalan paralel dengan SS1-07 sampai SS1-12 | P1 | L (8) | Sprint Backlog |
+| SS1-14 | Model ML: risiko sesi terjadwal kosong | Rangga | Mulai Sel 27 Okt, PR Kam 29 Okt, merge Jum 30 Okt | SS1-08, SS1-09 (label status) | P1 | L (8) | Sprint Backlog |
 
-Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, SS1-09, SS1-14) dipegang Rangga; kartu yang tidak memblokir (SS1-10, SS1-11, SS1-12) dipegang Dika; SS1-13 berdua.
+Skala Size: XS=2, S=3, M=5, L=8 poin (usulan, disepakati di sinkron). Selesai: SS1-01 (PR #53) dan SS1-04 (PR #54) diselesaikan Dika lebih awal; SS1-02 (PR #44), SS1-03 (PR #42), SS1-07 (PR #55), dan SS1-10 (PR #56). SS1-08 selesai lebih awal (18 Okt) siap review PR. Jalur kritis AI (SS1-07, SS1-08, SS1-09, SS1-14) dipegang Rangga; kartu yang tidak memblokir (SS1-10, SS1-11, SS1-12) dipegang Dika; SS1-13 berdua.
 
 ## 2. Rincian kartu Sprint 1 (inti AI)
 
@@ -25,6 +25,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - Label: ai, laravel, must
 - Pemilik: Rangga (reviewer: Dika)
+- Priority: P0 | Size: M (5) | Status: Done (PR #55 merged)
 - Target: PR Jum 16 Okt, merge Sen 19 Okt
 - Branch: `feature/ss1-07-kontrak-data-migrasi`
 - Kebutuhan: FR-04, FR-05, FR-06 (skema); PRD Bagian 10
@@ -35,28 +36,29 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 **Tugas**
 
-- [ ] Tulis docs/DATA_CONTRACT.md: slot 10 menit, jam operasional 07.00-23.00 (96 slot per hari), jeda 17.00-17.10 tidak dievaluasi, arti is_occupied, zona waktu WIB.
-- [ ] Catat definisi operasional final: sesi dinilai setelah jam terjadwal berakhir; status kosong meski terjadwal bila menit_terpakai < empty_min_occupied_minutes (awal 10); sesuai jadwal bila sebaliknya; dipakai di luar jadwal bila ada episode okupansi di luar semua jendela jadwal ruang itu, dalam jam operasional, dengan durasi >= outside_schedule_min_minutes (awal 30). Kedua nilai awal adalah asumsi tim yang divalidasi dengan manpro.
-- [ ] Granularitas final: satu baris classification_results per ruang per sesi per tanggal; episode di luar jadwal menjadi baris dengan schedule_id kosong.
-- [ ] Migrasi Laravel occupancy_logs: id, room_id, slot_mulai, is_occupied, source (default dummy); unik pada room_id + slot_mulai.
-- [ ] Migrasi Laravel classification_results: id, room_id, schedule_id (boleh kosong), tanggal, waktu_mulai, waktu_selesai, status, menit_terjadwal, menit_terpakai, utilisasi_pct (kosong bila menit_terjadwal = 0), rule_id, penjelasan, computed_at.
-- [ ] Perbarui ThresholdSettingSeeder: tambah empty_min_occupied_minutes (10) dan outside_schedule_min_minutes (30); hapus empty_status_use_start_tolerance (tidak ada di PRD dan tidak dipakai); sesuaikan test threshold yang ada.
-- [ ] Tetapkan antarmuka fungsi (nama, parameter, bentuk hasil) untuk klasifikasi sesi dan penghitungan utilisasi di DATA_CONTRACT.md, agar SS1-10 dan SS1-11 dapat dikerjakan paralel.
-- [ ] Tambahkan model SQLAlchemy yang sesuai di ai-service/app/models.py.
-- [ ] Masukkan PRD v1.1 ke docs/ (menggantikan v1.0).
+- [x] Tulis docs/DATA_CONTRACT.md: slot 10 menit, jam operasional 07.00-23.00 (96 slot per hari), jeda 17.00-17.10 tidak dievaluasi, arti is_occupied, zona waktu WIB.
+- [x] Catat definisi operasional final: sesi dinilai setelah jam terjadwal berakhir; status kosong meski terjadwal bila menit_terpakai < empty_min_occupied_minutes (awal 10); sesuai jadwal bila sebaliknya; dipakai di luar jadwal bila ada episode okupansi di luar semua jendela jadwal ruang itu, dalam jam operasional, dengan durasi >= outside_schedule_min_minutes (awal 30). Kedua nilai awal adalah asumsi tim yang divalidasi dengan manpro.
+- [x] Granularitas final: satu baris classification_results per ruang per sesi per tanggal; episode di luar jadwal menjadi baris dengan schedule_id kosong.
+- [x] Migrasi Laravel occupancy_logs: id, room_id, slot_mulai, is_occupied, source (default dummy); unik pada room_id + slot_mulai.
+- [x] Migrasi Laravel classification_results: id, room_id, schedule_id (boleh kosong), tanggal, waktu_mulai, waktu_selesai, status, menit_terjadwal, menit_terpakai, utilisasi_pct (kosong bila menit_terjadwal = 0), rule_id, penjelasan, computed_at.
+- [x] Perbarui ThresholdSettingSeeder: tambah empty_min_occupied_minutes (10) dan outside_schedule_min_minutes (30); sesuaikan test threshold yang ada.
+- [x] Tetapkan antarmuka fungsi (nama, parameter, bentuk hasil) untuk klasifikasi sesi dan penghitungan utilisasi di DATA_CONTRACT.md, agar SS1-10 dan SS1-11 dapat dikerjakan paralel.
+- [x] Tambahkan model SQLAlchemy yang sesuai di ai-service/app/models.py.
+- [x] Masukkan PRD v1.1 ke docs/ (menggantikan v1.0).
 
 **Kriteria selesai**
 
-- [ ] php artisan migrate:fresh --seed sukses.
-- [ ] Test skema lulus di database smart_space_test.
-- [ ] Model SQLAlchemy dapat membaca tabel baru.
-- [ ] DATA_CONTRACT.md disetujui Dika di PR.
-- [ ] Memenuhi DoD di ROADMAP.md bagian 7.
+- [x] php artisan migrate:fresh --seed sukses.
+- [x] Test skema lulus di database smart_space_test.
+- [x] Model SQLAlchemy dapat membaca tabel baru.
+- [x] DATA_CONTRACT.md disetujui Dika di PR.
+- [x] Memenuhi DoD di ROADMAP.md bagian 7.
 
 ### SS1-08 Generator data dummy okupansi historis
 
 - Label: ai, must
 - Pemilik: Rangga (reviewer: Dika)
+- Priority: P0 | Size: L (8) | Status: Ready for Review (selesai 18 Okt)
 - Target: PR Rab 21 Okt, merge Kam 22 Okt
 - Branch: `feature/ss1-08-generator-dummy-okupansi`
 - Kebutuhan: FR-04; HIRARC risiko 2 dan 4
@@ -67,21 +69,22 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 **Tugas**
 
-- [ ] Modul ai-service/app/generator/ membaca rooms, schedules, calendar_exceptions dari DB; rentang tanggal (awal 2026-09-07 sampai tanggal berjalan) dan seed dapat diatur lewat CLI.
-- [ ] Perilaku per sesi: hadir tepat waktu, terlambat, selesai lebih awal, tidak hadir; parameter dapat diubah.
-- [ ] Efek kalender: libur tidak ada sesi; masa ujian dan minggu pengganti berpola berbeda.
-- [ ] Pemakaian di luar jadwal: peluang rendah di ruang biasa, sedikit lebih tinggi di GU 701, GU 705, GU 707.
-- [ ] Skenario sesi tidak berlangsung lalu ruang dipinjam kegiatan lain lewat TU (peluang kecil): okupansi muncul pada jendela jadwal.
-- [ ] Noise (nilai awal, asumsi): salah deteksi 1% per slot dan slot hilang 2%; jeda 17.00-17.10 tidak diisi.
-- [ ] Dua set data dengan seed berbeda: set dev (merancang dan menyetel aturan) dan set test (uji), ditandai jelas.
-- [ ] Tulis ke occupancy_logs (source=dummy) dan ke berkas ground_truth_*.csv di luar DB, tidak dibaca sistem pakar. Kolom: tanggal, room_id, schedule_id, status_benar (yang akan disimpulkan pengamat sempurna dari okupansi), penyebab (kelas_berlangsung, tidak_hadir, dipinjam_kegiatan_lain, dan seterusnya).
-- [ ] Tulis docs/DATA_CARD.md: asumsi, parameter, skenario, keterbatasan (termasuk kasus dipinjam TU yang tidak terbedakan tanpa data PENRU).
+- [x] Modul ai-service/app/generator/ membaca rooms, schedules, calendar_exceptions dari DB; rentang tanggal default satu semester penuh (2026-09-07 sampai 2027-01-22) dan seed dapat diatur lewat CLI.
+- [x] Normalisasi nama hari kalender akademik dan jadwal menggunakan modul bersama app/calendar_utils.py.
+- [x] Perilaku per sesi: hadir tepat waktu, terlambat, selesai lebih awal, tidak hadir; parameter dapat diubah.
+- [x] Efek kalender: libur tidak ada sesi; masa ujian dan minggu pengganti berpola berbeda.
+- [x] Pemakaian di luar jadwal: peluang rendah di ruang biasa, sedikit lebih tinggi di GU 701, GU 705, GU 707.
+- [x] Skenario sesi tidak berlangsung lalu ruang dipinjam kegiatan lain lewat TU (peluang kecil): okupansi muncul pada jendela jadwal.
+- [x] Noise (nilai awal, asumsi): salah deteksi 1% per slot dan slot hilang 2%; jeda 17.00-17.10 tidak diisi.
+- [x] Dua set data dengan seed berbeda: set dev (`smart_space_ai_dev`, seed 1001) dan set test (`smart_space_ai_test`, seed 2002), ditandai jelas.
+- [x] Tulis ke occupancy_logs (source=dummy) dan ke berkas ground truth di `ai-service/data/ground_truth/` (ground_truth_dev.csv dan ground_truth_test.csv) di luar DB, tidak dibaca sistem pakar. Kolom: tanggal, room_id, schedule_id, waktu_mulai, waktu_selesai, status_benar, penyebab.
+- [x] Tulis docs/DATA_CARD.md: asumsi, parameter, skenario, keterbatasan (termasuk kasus dipinjam TU yang tidak terbedakan tanpa data PENRU).
 
 **Kriteria selesai**
 
-- [ ] Seed sama menghasilkan data identik (diuji).
-- [ ] Tidak ada log pada jeda 17.00-17.10 (diuji).
-- [ ] Ringkasan distribusi per ruang masuk akal dan tercatat di DATA_CARD.md.
+- [x] Seed sama menghasilkan data identik (diuji).
+- [x] Tidak ada log pada jeda 17.00-17.10 (diuji).
+- [x] Ringkasan distribusi per ruang masuk akal dan tercatat di DATA_CARD.md.
 - [ ] Test lulus dan PR di-approve.
 - [ ] Memenuhi DoD di ROADMAP.md bagian 7.
 
@@ -89,6 +92,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - Label: ai, must
 - Pemilik: Rangga (reviewer: Dika)
+- Priority: P0 | Size: L (8) | Status: Sprint Backlog
 - Target: PR Sen 26 Okt, merge Sel 27 Okt
 - Branch: `feature/ss1-09-sistem-pakar-klasifikasi`
 - Kebutuhan: FR-05, FR-10, FR-11
@@ -101,10 +105,11 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - [ ] Basis pengetahuan: aturan IF-THEN ber-rule_id (R01, R02, dst) terpisah dari mesin inferensi; Ruang dan Sesi direpresentasikan sebagai frame (slot: nama, tipe open-space, jadwal).
 - [ ] Semua ambang dibaca dari threshold_settings (empty_min_occupied_minutes, outside_schedule_min_minutes, batas utilisasi), tanpa angka yang ditulis langsung di kode.
+- [ ] Normalisasi dan pencocokan nama hari pada jadwal menggunakan modul bersama app/calendar_utils.py.
 - [ ] Mesin inferensi forward chaining deterministik dari fakta (jadwal, okupansi, waktu evaluasi) ke status.
 - [ ] Tiga status sesuai definisi operasional di DATA_CONTRACT.md; jeda 17.00-17.10 dan di luar jam operasional tidak dievaluasi; episode di luar jadwal ditandai untuk Admin (FR-10).
 - [ ] Mekanisme penjelasan: tiap hasil menyimpan rule_id dan kalimat penjelasan Bahasa Indonesia. Penjelasan status kosong boleh menyebut bahwa ruang berpotensi dimanfaatkan kegiatan lain lewat peminjaman di TU (informasi saja, bukan fitur booking).
-- [ ] Menulis hasil sesuai skema classification_results dengan antarmuka fungsi dari SS1-07.
+- [ ] Menulis hasil sesuai skema classification_results dengan antarmuka fungsi murni berbahasa Indonesia (mengikuti gaya modul utilisasi SS1-10: `klasifikasikan_sesi`, `deteksi_pemakaian_luar_jadwal`, `klasifikasikan_hari`) dan hasil evaluasi dapat dipetakan langsung ke tipe `Sesi` untuk penghitungan utilisasi.
 - [ ] Unit test per aturan dan per kasus batas, termasuk sesi yang berakhir tepat di batas ambang.
 
 **Kriteria selesai**
@@ -119,6 +124,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - Label: ai, must
 - Pemilik: Dika (reviewer: Rangga)
+- Priority: P1 | Size: S (3) | Status: Done (PR #56 merged)
 - Target: PR Jum 23 Okt, merge Sen 26 Okt
 - Branch: `feature/ss1-10-utilisasi-statistik`
 - Kebutuhan: FR-06; RPP: estimasi statistik efisiensi
@@ -129,22 +135,23 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 **Tugas**
 
-- [ ] Utilisasi = (jam benar-benar terpakai / jam terjadwal) x 100% per ruang per periode (hari, minggu, semester berjalan).
-- [ ] Kategori rendah (0-40), sedang (41-80), tinggi (81-100) dari threshold_settings; tangani celah desimal (usulan: <=40 rendah, <=80 sedang, selebihnya tinggi) dan jam terjadwal nol.
-- [ ] Statistik efisiensi: rata-rata, minimum, maksimum per ruang; selisih jam terjadwal dan terpakai; korelasi Pearson dan Spearman antara jam terjadwal dan terpakai antar ruang (catat bahwa jumlah ruang hanya 10).
-- [ ] Unit test dengan hitungan manual.
+- [x] Utilisasi = (jam benar-benar terpakai / jam terjadwal) x 100% per ruang per periode (hari, minggu, semester berjalan).
+- [x] Kategori rendah (0-40), sedang (41-80), tinggi (81-100) dari threshold_settings; tangani celah desimal (usulan: <=40 rendah, <=80 sedang, selebihnya tinggi) dan jam terjadwal nol.
+- [x] Statistik efisiensi: rata-rata, minimum, maksimum per ruang; selisih jam terjadwal dan terpakai; korelasi Pearson dan Spearman antara jam terjadwal dan terpakai antar ruang (catat bahwa jumlah ruang hanya 10).
+- [x] Unit test dengan hitungan manual.
 
 **Kriteria selesai**
 
-- [ ] Hasil cocok dengan hitungan manual pada data contoh.
-- [ ] Kasus jam terjadwal nol dan nilai batas teruji.
-- [ ] Kategori memakai ambang dari DB.
-- [ ] Memenuhi DoD di ROADMAP.md bagian 7.
+- [x] Hasil cocok dengan hitungan manual pada data contoh.
+- [x] Kasus jam terjadwal nol dan nilai batas teruji.
+- [x] Kategori memakai ambang dari DB.
+- [x] Memenuhi DoD di ROADMAP.md bagian 7.
 
 ### SS1-11 FastAPI dan integrasi database
 
 - Label: ai, must
 - Pemilik: Dika (reviewer: Rangga)
+- Priority: P1 | Size: M (5) | Status: Sprint Backlog
 - Target: PR Rab 28 Okt, merge Kam 29 Okt
 - Branch: `feature/ss1-11-fastapi-integrasi-db`
 - Kebutuhan: FR-05, FR-06, FR-10; NFR-07
@@ -157,7 +164,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - [ ] Endpoint: GET /health, POST /classify (rentang tanggal, menulis classification_results), GET /results, GET /utilization.
 - [ ] Idempoten: menjalankan ulang rentang yang sama mengganti hasil, tidak menggandakan baris.
-- [ ] Membaca rooms, schedules, threshold_settings dari MySQL; hanya menulis occupancy_logs dan classification_results.
+- [ ] Membaca rooms, schedules, threshold_settings dari MySQL; memetakan key threshold ke parameter fungsi (mis. `utilization_low_max` ke `batas_rendah`, `utilization_medium_max` ke `batas_sedang`); mengintegrasikan fungsi analitik nyata (`hitung_statistik_ruang`, `tentukan_kategori`) dan sistem pakar; hanya menulis ke `occupancy_logs` dan `classification_results`.
 - [ ] Konfigurasi dari .env; dokumentasi Swagger; test dengan TestClient; README cara menjalankan.
 
 **Kriteria selesai**
@@ -172,6 +179,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - Label: ai, must
 - Pemilik: Dika (reviewer: Rangga)
+- Priority: P1 | Size: M (5) | Status: Sprint Backlog
 - Target: PR Kam 29 Okt, merge Jum 30 Okt
 - Branch: `feature/ss1-12-validasi-sistem-pakar`
 - Kebutuhan: RPP fase Test (validasi keakuratan data analitik); HIRARC risiko 2 dan 4
@@ -182,10 +190,10 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 **Tugas**
 
-- [ ] Notebook ai-service/notebooks/01_validasi_sistem_pakar.ipynb: jalankan pada set test.
+- [ ] Notebook ai-service/notebooks/01_validasi_sistem_pakar.ipynb: membaca ground truth dari `ai-service/data/ground_truth/ground_truth_test.csv` dan database `smart_space_ai_test`.
 - [ ] Confusion matrix 3 kelas; precision, recall, F1 per kelas; accuracy.
 - [ ] Analisis kesalahan: kapan dan mengapa aturan salah (terutama akibat noise); uji sensitivitas terhadap tingkat noise.
-- [ ] Penyetelan empty_min_occupied_minutes dan outside_schedule_min_minutes hanya pada set dev, lalu dievaluasi sekali pada set test; catat dampak nilai ambang terhadap precision dan recall.
+- [ ] Penyetelan empty_min_occupied_minutes dan outside_schedule_min_minutes hanya pada set dev (`smart_space_ai_dev`), lalu dievaluasi sekali pada set test (`smart_space_ai_test`) tanpa kebocoran data; catat dampak nilai ambang terhadap precision dan recall.
 - [ ] Bukti bahwa aturan dirancang hanya dari set dev; ringkasan di docs/EVALUASI_AI.md beserta keterbatasan data simulasi.
 
 **Kriteria selesai**
@@ -199,6 +207,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - Label: ai, docs, must
 - Pemilik: Rangga dan Dika (masing-masing menulis bagiannya; reviewer silang)
+- Priority: P1 | Size: L (8) | Status: Sprint Backlog
 - Target: Draf Jum 23 Okt, final Jum 6 Nov (cadangan), latihan 2-6 Nov
 - Branch: `feature/ss1-13-dokumen-rancangan-ai`
 - Kebutuhan: RPP fase Design; NFR-04, NFR-07
@@ -228,6 +237,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 
 - Label: ai, ml, must
 - Pemilik: Rangga (reviewer: Dika)
+- Priority: P1 | Size: L (8) | Status: Sprint Backlog
 - Target: Mulai Sel 27 Okt, PR Kam 29 Okt, merge Jum 30 Okt
 - Branch: `feature/ss1-14-model-risiko-sesi-kosong`
 - Kebutuhan: Tier 2 (PRD Bagian 9, dinaikkan prioritasnya)
@@ -239,7 +249,7 @@ Selesai: SS1-02 (PR #44) dan SS1-03 (PR #42). Jalur kritis AI (SS1-07, SS1-08, S
 **Tugas**
 
 - [ ] Dataset fitur per sesi hanya dari informasi sebelum sesi: ruang, hari, jam mulai, durasi, shift, tipe open-space, pekan ke-, dekat libur atau ujian, tingkat kosong ruang itu pada pekan-pekan sebelumnya. Label: status sesi dari classification_results (kosong meski terjadwal vs lainnya).
-- [ ] Pembagian kronologis (pekan awal untuk latih, pekan akhir untuk uji) ditambah potongan pekan ujian atau libur sebagai uji tambahan.
+- [ ] Pembagian kronologis (pekan awal untuk latih, pekan akhir untuk uji) pada data satu semester penuh memungkinkan pengujian tambahan pada potongan pekan ujian atau libur dengan jumlah sampel kelas positif yang lebih memadai.
 - [ ] Baseline: selalu menebak kelas mayoritas; rata-rata historis per ruang.
 - [ ] Dua model klasifikasi dari AI5: Decision Tree dan Logistic Regression.
 - [ ] Metrik AI6: confusion matrix, accuracy, precision, recall, F1, ROC-AUC; bahas ketidakseimbangan kelas dan pilihan metrik.
@@ -261,10 +271,10 @@ Issue yang sudah ada di GitHub dan tidak masuk jalur AI sebelum ATS:
 
 | Kode | Issue GitHub | Judul | Kebutuhan | Catatan |
 |---|---|---|---|---|
-| SS1-01 | #34 | Autentikasi Admin | FR-01 | Issue #34 berstatus Closed di GitHub, tetapi login Admin belum ada di main. Buka kembali atau pastikan PR-nya ada. Pasca-ATS. |
-| SS1-04 | #37 | CRUD data master ruangan | FR-02 | Pasca-ATS. kapasitas dan lokasi bersifat opsional (nullable); seeder 10 ruangan sudah ada dari SS1-03. |
-| SS1-05 | #38 | Impor data jadwal real Prodi IF | FR-03 (data awal) | Sudah dicakup ScheduleSeeder di SS1-03 (102 jadwal, terhubung ke rooms). Verifikasi seeder aman dijalankan ulang tanpa duplikat, lalu tutup issue. |
-| SS1-06 | #39 | Pengelolaan jadwal oleh Admin (CRUD dan override) | FR-03 (bagian Admin) | Pasca-ATS. Bergantung pada autentikasi Admin (SS1-01). Menggantikan SS2-01 pada rencana lama. |
+| SS1-01 | #34 | Autentikasi Admin | FR-01 | Selesai di main lebih awal (PR #53) dikerjakan Dika sebelum ATS. |
+| SS1-04 | #37 | CRUD data master ruangan | FR-02 | Selesai di main lebih awal (PR #54) dikerjakan Dika; pengaman tolak hapus ruangan yang memiliki jadwal/riwayat serta label kondisi ruangan ditambahkan di PR #57. |
+| SS1-05 | #38 | Impor data jadwal real Prodi IF | FR-03 (data awal) | Seeder jadwal dibuat idempoten dengan unique index slot jadwal pada schedules (PR #57). |
+| SS1-06 | #39 | Pengelolaan jadwal oleh Admin (CRUD dan override) | FR-03 (bagian Admin) | Pasca-ATS. Bergantung pada autentikasi Admin (SS1-01). |
 
 Kartu baru:
 

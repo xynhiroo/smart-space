@@ -1,12 +1,17 @@
 """Parameter generator data dummy okupansi dan ground truth (SS1-08)."""
 
 from dataclasses import dataclass
+from datetime import date
 from typing import Mapping, Sequence
 
 DEV_SEED: int = 1001
 TEST_SEED: int = 2002
 
+SEMESTER_START_DATE: date = date(2026, 9, 7)
+SEMESTER_END_DATE: date = date(2027, 1, 22)
+
 DEFAULT_START_DATE: str = "2026-09-07"
+DEFAULT_END_DATE: str = "2027-01-22"
 
 SCENARIO_NAMES: tuple[str, ...] = (
     "tepat_waktu",

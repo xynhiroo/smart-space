@@ -13,8 +13,9 @@ from typing import Sequence
 from app.generator.calendar_kind import resolve_day_kind
 from app.generator.ground_truth import GroundTruthRow, write_ground_truth_csv
 from app.generator.params import (
-    DEFAULT_START_DATE,
     DEV_SEED,
+    SEMESTER_END_DATE,
+    SEMESTER_START_DATE,
     TEST_SEED,
     GeneratorParams,
 )
@@ -25,13 +26,6 @@ from app.generator.repository import (
     save_occupancy_logs_idempotent,
 )
 from app.generator.simulator import DayResult, ObservedSlot, simulate_room_day
-
-
-def get_default_end_date() -> date:
-    """Mengembalikan tanggal kemarin dalam waktu Indonesia Barat (WIB, UTC+7)."""
-    wib = timezone(timedelta(hours=7))
-    today_wib = datetime.now(wib).date()
-    return today_wib - timedelta(days=1)
 
 
 def parse_args(args: Sequence[str] | None = None) -> argparse.Namespace:
@@ -48,14 +42,14 @@ def parse_args(args: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--start",
         type=str,
-        default=DEFAULT_START_DATE,
-        help=f"Tanggal mulai simulasi (YYYY-MM-DD), default: {DEFAULT_START_DATE}.",
+        default=str(SEMESTER_START_DATE),
+        help=f"Tanggal mulai simulasi (YYYY-MM-DD), default: {SEMESTER_START_DATE} (awal semester aktif).",
     )
     parser.add_argument(
         "--end",
         type=str,
-        default=None,
-        help="Tanggal selesai simulasi (YYYY-MM-DD), default: kemarin WIB.",
+        default=str(SEMESTER_END_DATE),
+        help=f"Tanggal selesai simulasi (YYYY-MM-DD), default: {SEMESTER_END_DATE} (akhir semester aktif).",
     )
     parser.add_argument(
         "--seed",
@@ -82,7 +76,7 @@ def run_generator(args: argparse.Namespace) -> int:
     start_time = time.perf_counter()
 
     start_date = date.fromisoformat(args.start)
-    end_date = date.fromisoformat(args.end) if args.end else get_default_end_date()
+    end_date = date.fromisoformat(args.end)
 
     if start_date > end_date:
         print(f"Error: Tanggal mulai ({start_date}) tidak boleh melebihi tanggal selesai ({end_date}).", file=sys.stderr)
@@ -109,6 +103,7 @@ def run_generator(args: argparse.Namespace) -> int:
     print("================================================================================")
     print(" Smart Space Analytics - Generator Data Dummy Okupansi Historis (SS1-08)")
     print("================================================================================")
+    print(" Peringatan        : Data adalah simulasi untuk rentang yang sudah/belum berlalu.")
     print(f" Target Set        : {args.set.upper()}")
     print(f" Target Database   : {active_db}")
     print(f" Rentang Tanggal   : {start_date} s.d. {end_date} ({(end_date - start_date).days + 1} hari)")

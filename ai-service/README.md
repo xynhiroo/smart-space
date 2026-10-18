@@ -118,8 +118,8 @@ python -m app.generator --set test
 ```
 
 **Opsi CLI Tambahan:**
-- `--start YYYY-MM-DD`: Tanggal awal simulasi (default: `2026-09-07`).
-- `--end YYYY-MM-DD`: Tanggal akhir simulasi (default: kemarin WIB).
+- `--start YYYY-MM-DD`: Tanggal awal simulasi (default: `2026-09-07`, awal semester aktif).
+- `--end YYYY-MM-DD`: Tanggal akhir simulasi (default: `2027-01-22`, akhir semester aktif).
 - `--seed N`: Menentukan seed acak kustom (default: `1001` untuk dev, `2002` untuk test).
 - `--dry-run`: Hanya mencetak ringkasan distribusi tanpa menyentuh DB atau membuat berkas CSV.
 - `--allow-any-database`: Mengizinkan penulisan ke database di luar daftar resmi (`smart_space_ai_dev` dan `smart_space_ai_test`). Database aplikasi `smart_space` dilindungi secara default.

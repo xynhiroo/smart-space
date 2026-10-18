@@ -1,6 +1,6 @@
 # Data Card: Dataset Dummy Okupansi Historis & Ground Truth (SS1-08)
 
-Dokumen ini menjelaskan spesifikasi, asumsi parameter, definisi skenario, prosedur pembuatan ulang, serta ringkasan distribusi dataset dummy okupansi historis dan label kebenaran (*ground truth*) untuk Smart Space Analytics Platform (PBLIF3-PD08).
+Dokumen ini menjelaskan spesifikasi, asumsi parameter, definisi skenario, prosedur pembuatan ulang, serta ringkasan distribusi dataset dummy okupansi historis dan label kebenaran (*ground truth*) satu semester penuh untuk Smart Space Analytics Platform (PBLIF3-PD08).
 
 ---
 
@@ -9,10 +9,14 @@ Dokumen ini menjelaskan spesifikasi, asumsi parameter, definisi skenario, prosed
 ### Tujuan
 Dataset ini disediakan untuk melatih, mengevaluasi, dan memvalidasi model inferensi sistem pakar (SS1-09), modul analitik utilisasi ruang (SS1-10), layanan API analitik (SS1-11), validasi akurasi sistem (SS1-12), dan model Machine Learning (SS1-14) tanpa ketergantungan pada perangkat keras sensor fisik IoT.
 
-### Lingkup
+### Lingkup dan Alasan Rentang Semester Penuh
+- **Rentang Waktu**: Tanggal 7 September 2026 (awal perkuliahan aktif) sampai 22 Januari 2027 (akhir evaluasi semester aktif / AAS), mencakup **100 hari kerja aktif** (Senin s.d. Jumat) atau 138 hari kalender.
+- **Alasan Pemilihan Semester Penuh**:
+  1. **Cakupan Lengkap Siklus Akademik**: Memastikan seluruh variasi jenis hari kalender terwakili secara komprehensif, yaitu masa perkuliahan biasa (67 hari kerja), masa ujian tengah/akhir semester ATS/AAS (20 hari kerja), minggu pengganti & perwalian pra/pasca ATS (9 hari kerja), dan hari libur nasional (4 hari kerja).
+  2. **Sampel Kelas Positif yang Memadai**: Dengan total 1.959 sesi terjadwal, dataset menyediakan volume sampel yang cukup besar untuk mendeteksi anomali ruang kosong (`tidak_hadir`), keterlambatan, selesai awal, maupun pemakaian di luar jadwal secara representatif.
+  3. **Simulasi Masa Depan**: Mengingat tanggal akhir semester berada di masa depan relatif terhadap waktu pengembangan saat ini, seluruh data pada rentang ini ditegaskan sebagai **data simulasi sintetis**, termasuk bagian tanggal yang belum berlangsung di kalender nyata.
 - **Cakupan Entitas**: 10 ruangan laboratorium/teori Jurusan Teknik Informatika Polibatam (GU 604, GU 701, GU 702, GU 704, GU 705, GU 706, GU 707, GU 805, TA 10.3, TA 11.5A) dan 102 jadwal mata kuliah reguler semester Ganjil 2026/2027.
 - **Batasan Sensor**: Generator meniru keluaran biner deteksi okupansi sensor per slot 10 menit. Tidak ada hardware, mikrokontroler, kamera, RFID, atau aktor selain Admin dan Mahasiswa.
-- **Rentang Waktu**: Tanggal 7 September 2026 (awal perkuliahan aktif) sampai kemarin WIB (17 Oktober 2026), hanya hari kerja aktif (Senin s.d. Jumat).
 - **Target Penyimpanan**: Tabel `occupancy_logs` pada database terisolasi (`smart_space_ai_dev` dan `smart_space_ai_test`) serta berkas CSV ground truth di `ai-service/data/ground_truth/`.
 
 ---
@@ -27,6 +31,8 @@ Semua parameter dibungkus dalam dataclass frozen `GeneratorParams` pada `ai-serv
 | `operational_start_hour` | 07:00 | Jam awal operasional harian |
 | `operational_end_hour` | 23:00 | Jam akhir operasional harian (slot terakhir mulai 22:50) |
 | `break_hour:break_minute` | 17:00 | Slot jeda harian (17:00-17:10); ruangan tutup, tidak ada baris data |
+| `SEMESTER_START_DATE` | `2026-09-07` | Tanggal awal perkuliahan semester aktif (Senin) |
+| `SEMESTER_END_DATE` | `2027-01-22` | Tanggal akhir masa ujian AAS (Jumat), sesuai `calendar_exceptions` |
 | `weights_biasa` | (0.78, 0.08, 0.06, 0.06, 0.02) | Peluang skenario hari biasa (tepat waktu, terlambat, selesai awal, tidak hadir, dipinjam kegiatan lain) |
 | `weights_ujian` | (0.58, 0.05, 0.15, 0.20, 0.02) | Peluang skenario masa ATS/AAS |
 | `weights_kegiatan_khusus`| (0.40, 0.04, 0.04, 0.50, 0.02) | Peluang skenario minggu pengganti / perwalian |
@@ -82,71 +88,81 @@ Setiap sesi perkuliahan yang terjadwal disimulasikan ke dalam salah satu dari 5 
    $env:DB_DATABASE="smart_space_ai_test"; php artisan migrate:fresh --seed; Remove-Item Env:DB_DATABASE
    ```
 
-### Perintah CLI Generator
+### Perintah CLI Generator (Default Semester Penuh)
 Jalankan dari direktori root atau `ai-service/`:
 ```bash
-# Menghasilkan dataset dev (seed: 1001)
+# Menghasilkan dataset dev satu semester penuh (seed: 1001)
 python -m app.generator --set dev
 
-# Menghasilkan dataset test (seed: 2002)
+# Menghasilkan dataset test satu semester penuh (seed: 2002)
 python -m app.generator --set test
 ```
 
 ---
 
-## 5. Ringkasan Distribusi Dataset Dev
+## 5. Ringkasan Distribusi Dataset Dev (Semester Penuh)
 
 - **Target Database**: `smart_space_ai_dev`
 - **Seed**: `1001`
-- **Rentang Tanggal**: `2026-09-07` s.d. `2026-10-17` (30 hari kerja aktif)
-- **Total Baris `occupancy_logs`**: 27.911 baris
-- **Total Baris Ground Truth**: 631 baris (612 baris sesi terjadwal, 19 baris episode pemakaian luar jadwal)
+- **Rentang Tanggal**: `2026-09-07` s.d. `2027-01-22` (100 hari kerja aktif)
+- **Total Baris `occupancy_logs`**: 93.063 baris
+- **Total Baris Ground Truth**: 2.010 baris (1.959 sesi terjadwal, 51 episode pemakaian luar jadwal)
 
 ### Ringkasan per Ruangan (Set Dev)
 
 | ID | Nama Ruangan | Karakteristik | Total Sesi | Total Slot | Slot Terisi | Okupansi (%) |
 |---|---|---|---|---|---|---|
-| 1 | GU 604 | Reguler | 30 | 2.782 | 508 | 18,26% |
-| 2 | GU 701 | Open-Space | 30 | 2.786 | 586 | 21,03% |
-| 3 | GU 702 | Reguler | 90 | 2.797 | 1.208 | 43,19% |
-| 4 | GU 704 | Reguler | 90 | 2.787 | 1.637 | 58,74% |
-| 5 | GU 705 | Open-Space | 66 | 2.790 | 983 | 35,23% |
-| 6 | GU 706 | Reguler | 114 | 2.791 | 1.753 | 62,81% |
-| 7 | GU 707 | Open-Space | 66 | 2.788 | 1.041 | 37,34% |
-| 8 | GU 805 | Reguler | 78 | 2.798 | 1.085 | 38,78% |
-| 9 | TA 10.3 | Reguler | 36 | 2.791 | 393 | 14,08% |
-| 10 | TA 11.5A | Reguler | 12 | 2.801 | 113 | 4,03% |
-| **Total** | | | **612** | **27.911** | **9.307** | **33,35%** |
+| 1 | GU 604 | Reguler | 100 | 9.298 | 1.462 | 15,72% |
+| 2 | GU 701 | Open-Space | 100 | 9.292 | 1.703 | 18,33% |
+| 3 | GU 702 | Reguler | 290 | 9.306 | 3.611 | 38,80% |
+| 4 | GU 704 | Reguler | 286 | 9.318 | 5.024 | 53,92% |
+| 5 | GU 705 | Open-Space | 211 | 9.306 | 2.719 | 29,22% |
+| 6 | GU 706 | Reguler | 362 | 9.304 | 5.202 | 55,91% |
+| 7 | GU 707 | Open-Space | 210 | 9.310 | 3.090 | 33,19% |
+| 8 | GU 805 | Reguler | 248 | 9.302 | 3.077 | 33,08% |
+| 9 | TA 10.3 | Reguler | 114 | 9.310 | 1.263 | 13,57% |
+| 10 | TA 11.5A | Reguler | 38 | 9.317 | 378 | 4,06% |
+| **Total** | | | **1.959** | **93.063** | **27.529** | **29,58%** |
 
-### Distribusi Ground Truth Status Benar (Set Dev)
-- `sesuai_jadwal`: 574 baris (90,97%)
-- `kosong_meski_terjadwal`: 38 baris (6,02%)
-- `dipakai_di_luar_jadwal`: 19 baris (3,01%)
+### Distribusi Ground Truth Keseluruhan (Set Dev)
 
-### Distribusi Ground Truth Penyebab (Set Dev)
-- `kelas_berlangsung`: 499 baris (79,08%)
-- `tidak_hadir`: 38 baris (6,02%)
-- `terlambat`: 37 baris (5,86%)
-- `selesai_awal`: 30 baris (4,75%)
-- `pemakaian_luar_jadwal`: 19 baris (3,01%)
-- `dipinjam_kegiatan_lain`: 8 baris (1,27%)
+- **Status Benar**:
+  - `sesuai_jadwal`: 1.704 baris (84,78%)
+  - `kosong_meski_terjadwal`: 255 baris (12,69%)
+  - `dipakai_di_luar_jadwal`: 51 baris (2,54%)
+- **Penyebab**:
+  - `kelas_berlangsung`: 1.402 baris (69,75%)
+  - `tidak_hadir`: 255 baris (12,69%)
+  - `selesai_awal`: 136 baris (6,77%)
+  - `terlambat`: 122 baris (6,07%)
+  - `pemakaian_luar_jadwal`: 51 baris (2,54%)
+  - `dipinjam_kegiatan_lain`: 44 baris (2,19%)
+
+### Rincian Distribusi Ground Truth Berdasarkan Jenis Hari (Set Dev)
+
+| Jenis Hari | Hari Kerja | Total Sesi | Episode | Sesuai Jadwal | Kosong Terjadwal | Dipakai Luar Jadwal | Catatan Perilaku |
+|---|---|---|---|---|---|---|---|
+| **Biasa** | 67 | 1.368 | 33 | 1.289 (94,2%) | 79 (5,8%) | 33 | Kuliah reguler dominan berjalan normal (`kelas_berlangsung` 1.092, `tidak_hadir` 79) |
+| **Ujian** | 20 | 408 | 10 | 333 (81,6%) | 75 (18,4%) | 10 | Masa ATS & AAS memiliki tingkat selesai awal lebih tinggi (57 sesi) dan absen (75 sesi) |
+| **Kegiatan Khusus** | 9 | 183 | 8 | 82 (44,8%) | 101 (55,2%) | 8 | Minggu Pengganti & Perwalian didominasi ruang kosong terjadwal (`tidak_hadir` 101 sesi) |
+| **Libur** | 4 | 0 | 0 | 0 | 0 | 0 | Tidak ada sesi perkuliahan; peluang episode luar jadwal rendah (pengali 0,3x) |
 
 ---
 
-## 6. Ringkasan Dataset Test
+## 6. Ringkasan Dataset Test (Semester Penuh)
 
-Sesuai ketentuan isolasi pengujian, data test dibangkitkan secara independen tanpa analisis pola mendalam:
+Sesuai ketentuan isolasi pengujian, dataset test dibangkitkan secara independen tanpa analisis pola mendalam:
 - **Target Database**: `smart_space_ai_test`
 - **Seed**: `2002`
-- **Rentang Tanggal**: `2026-09-07` s.d. `2026-10-17` (30 hari kerja aktif)
-- **Total Baris `occupancy_logs`**: 27.986 baris
-- **Total Baris Ground Truth**: 624 baris (612 baris sesi terjadwal, 12 baris episode pemakaian luar jadwal)
+- **Rentang Tanggal**: `2026-09-07` s.d. `2027-01-22` (100 hari kerja aktif)
+- **Total Baris `occupancy_logs`**: **93.112 baris**
+- **Total Baris Ground Truth**: **2.007 baris** (1.959 sesi terjadwal, 48 episode pemakaian luar jadwal)
 
 ---
 
 ## 7. Keterbatasan yang Diketahui & Catatan Penting
 
-1. **Simulasi Buatan Tim**: Data ini sepenuhnya hasil pembangkitan probabilistik deterministik. Kinerja sistem pakar atau model machine learning pada dataset ini tidak menjamin keakuratan setara pada kondisi fisik dunia nyata.
+1. **Simulasi Buatan Tim**: Data ini sepenuhnya hasil pembangkitan probabilistik deterministik, termasuk seluruh bagian tanggal di masa depan yang belum berlalu. Kinerja sistem pakar atau model machine learning pada dataset ini tidak menjamin keakuratan setara pada kondisi fisik dunia nyata.
 2. **Ketiadaan Data PENRU (Peminjaman Ruang TU)**: Kasus `dipinjam_kegiatan_lain` (ruangan terjadwal kosong lalu dipinjam mahasiswa lain via tata usaha) secara observasi slot biner tampak identik dengan kelas yang sedang berlangsung. Tanpa integrasi data PENRU, sistem analitik tidak dapat membedakan kedua penyebab ini (tercatat di PRD FR-13).
 3. **Ground Truth Berbasis Definisi Tetap**: Label `status_benar` diturunkan secara deterministik dari definisi operasional DATA_CONTRACT Bagian 7.4 (ambang batas 10 menit untuk sesi dan 30 menit untuk episode), bukan observasi fisik mata manusia.
 4. **Kerentanan Ambang Batas 10 Menit terhadap Noise (Hipotesis SS1-12)**:

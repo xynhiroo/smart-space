@@ -1,7 +1,7 @@
 # Roadmap Smart Space Analytics Platform (PBLIF3-PD08) sampai ATS
 
-Versi 1.1 final, 15 Oktober 2026. Pemilik dokumen: Rangga Surya Saputra (PO praktik) dan Muradika Laksamana Putra (SM praktik).
-Dokumen pendamping: `docs/BACKLOG.md` (rincian kartu) dan `docs/PRD_Smart_Space_Analytics_Platform.md` (v1.1).
+Versi 1.2, 18 Oktober 2026. Pemilik dokumen: Rangga Surya Saputra (PO praktik) dan Muradika Laksamana Putra (SM praktik).
+Dokumen pendamping: `docs/BACKLOG.md` (rincian kartu) dan `docs/PRD_Smart_Space_Analytics_Platform.md` (v1.2).
 
 ## 1. Tujuan dan prinsip
 
@@ -33,12 +33,16 @@ Generator dummy -> occupancy_logs (slot 10 menit) -> Sistem pakar (aturan + amba
 | 3 | Ruang terjadwal kosong yang dipinjam lewat TU | Tidak menambah kategori status (sesuai FR-13). Tanpa data PENRU, pemakaian seperti itu tampak sebagai terisi. Dicatat sebagai keterbatasan, disimulasikan di generator, dan penjelasan status kosong menyebut ruang berpotensi dimanfaatkan lewat peminjaman di TU (informasi saja, bukan booking) |
 | 4 | Pemakaian di luar jadwal | Ditandai bila episode okupansi di luar jadwal berdurasi >= `outside_schedule_min_minutes` (awal 30 menit), agar noise sensor tidak membanjiri Admin. Asumsi tim |
 | 5 | Granularitas `classification_results` | Satu baris per ruang per sesi per tanggal; episode di luar jadwal menjadi baris dengan `schedule_id` kosong; utilisasi periode dihitung saat query |
-| 6 | Rentang data generator | Awal semester (7 Sep 2026) sampai tanggal berjalan, dapat dikonfigurasi; historis sekali jalan. Simulasi berjalan (NFR-01) setelah ATS |
+| 6 | Rentang data generator | Satu semester penuh (7 Sep 2026 sampai 22 Jan 2027), dapat dikonfigurasi; historis sekali jalan. Simulasi berjalan (NFR-01) setelah ATS |
 | 7 | Penjelasan hasil klasifikasi | Ditambahkan: `rule_id` dan teks penjelasan Bahasa Indonesia |
 | 8 | Slot okupansi | 10 menit (selaras dengan jeda 17.00-17.10) |
 | 9 | Model ML | Satu model klasifikasi (Decision Tree dan Logistic Regression dibanding baseline) |
+| 10 | Pemisahan database dev dan test | Dua database terpisah dengan skema identik: `smart_space_ai_dev` (seed 1001) untuk perancangan/tuning aturan dan `smart_space_ai_test` (seed 2002) untuk evaluasi performa tanpa kebocoran data. Test otomatis memakai `smart_space_test`. Database aplikasi `smart_space` tidak dipakai generator |
+| 11 | Antarmuka analitik SS1-10 | Modul `app/analytics/utilization.py` mengimplementasikan fungsi murni (`hitung_utilisasi_pct`, `tentukan_kategori`, `hitung_statistik_ruang`, dsb.) dengan konvensi Bahasa Indonesia. Ambang dinamis dikirim lewat argumen `batas_rendah` dan `batas_sedang` dari `threshold_settings` |
+| 12 | Format nama hari di database | Nama hari disimpan dengan format berpetik: `Senin, Selasa, Rabu, Kamis, Jum'at`. Modul bersama `app/calendar_utils.py` dipakai untuk menormalkan variasi format nama hari |
+| 13 | Pengamanan master ruangan | Hapus ruangan ditolak bila ruangan masih memiliki jadwal atau riwayat (`occupancy_logs`, `classification_results`). Kolom `rooms.status` bermakna "Kondisi ruangan" (`tersedia`/`tidak tersedia`, data master, bukan status pemakaian). Klarifikasi tim, belum divalidasi manpro |
 
-Asumsi tim (nomor 2 dan 4) divalidasi dengan manpro pada sprint review Kamis 29 Okt.
+Asumsi tim (nomor 2 dan 4) serta klarifikasi nomor 13 (termasuk validasi apakah ruangan berkondisi "tidak tersedia" dikecualikan dari analitik — belum diputuskan, belum diimplementasikan) divalidasi dengan manpro pada sprint review Kamis 29 Okt.
 
 ## 4. Pembagian kerja
 
@@ -56,13 +60,16 @@ Penomoran mengikuti issue yang sudah ada di repo (judul issue berbentuk `[SS-S1-
 
 | Kartu | Issue GitHub | Tindakan |
 |---|---|---|
-| SS1-01 Autentikasi Admin | #34 (Closed) | Login Admin belum ada di main; buka kembali atau pastikan PR-nya ada. Pasca-ATS |
-| SS1-04 Data master ruangan | #37 | Pasca-ATS |
-| SS1-05 Impor data jadwal real | #38 | Sudah dicakup seeder SS1-03; verifikasi bisa dijalankan ulang tanpa duplikat, lalu tutup |
-| SS1-06 Pengelolaan jadwal oleh Admin | #39 | Pasca-ATS (menggantikan SS2-01) |
-| SS1-07 Kontrak data dan migrasi tabel AI | #40 | Perbarui isi: interval 10 menit (bukan 15), tambah tabel hasil klasifikasi, migrasi lewat Laravel |
-| SS1-08 Generator data dummy | #41 | Perbarui isi: tambah label kebenaran, noise, set dev dan test |
-| SS1-09 sampai SS1-14 | baru | Dibuat sebagai issue baru; isi siap tempel di `docs/GITHUB_ISSUES.md` |
+| SS1-01 Autentikasi Admin | #34 | Selesai di main (PR #53), dikerjakan Muradika lebih awal |
+| SS1-04 Data master ruangan | #37 | Selesai di main (PR #54), dikerjakan Muradika lebih awal; pengaman hapus dan label kondisi ruangan di PR #57 |
+| SS1-05 Impor data jadwal real | #38 | Dibuka kembali untuk perbaikan idempotensi seeder dan unique index di PR #57 |
+| SS1-06 Pengelolaan jadwal oleh Admin | #39 | Pasca-ATS |
+| SS1-07 Kontrak data dan migrasi tabel AI | #40 | Selesai di main (PR #55) |
+| SS1-08 Generator data dummy | #41 | Menunggu PR (selesai di branch `feature/ss1-08-generator-dummy-okupansi` pada 18 Okt, lebih awal dari rencana) |
+| SS1-10 Utilisasi dan statistik | #48 | Selesai di main (PR #56) |
+| SS1-09, SS1-11 sampai SS1-14 | baru | Dibuat sebagai issue baru; isi siap tempel di `docs/GITHUB_ISSUES.md` |
+
+Catatan: SS1-08 selesai lebih awal dari rencana (18 Okt) dan siap untuk review PR.
 
 Aturan pengalihan (untuk disepakati di sinkron pertama): kartu tanpa commit sampai titik cek Kam 22 Okt dialihkan ke Rangga, dan Dika tetap mereview. Review PR maksimal 24 jam karena merge membutuhkan approval pasangan.
 
@@ -74,6 +81,8 @@ Aturan pengalihan (untuk disepakati di sinkron pertama): kartu tanpa commit samp
 | Minggu 7 (19-23 Okt) | SS1-07 merge (Sen 19); SS1-08 (PR Rab 21, merge Kam 22); mulai SS1-09 (Kam 22) | SS1-10 (mulai Rab 21, PR Jum 23); draf bagian SS1-13 | Kam 22: cek bersama dan aturan pengalihan; Jum 23: PR SS1-10 dibuka |
 | Minggu 8 (26-30 Okt) | SS1-09 (PR Sen 26, merge Sel 27); SS1-14 (Sel 27 - Kam 29, merge Jum 30); bagian SS1-13 | SS1-10 merge (Sen 26); SS1-11 (PR Rab 28, merge Kam 29); SS1-12 (PR Kam 29, merge Jum 30) | Sen 26: titik pengaman; Kam 29: sprint review dengan manpro; Jum 30: AI dibekukan |
 | ATS 2-13 Nov | Cadangan 2-6 Nov: kartu yang molor, SS1-13 final, latihan presentasi | sama | Tanpa kartu baru |
+
+Catatan pembaruan 18 Okt: SS1-01 (PR #53) dan SS1-04 (PR #54) telah selesai di main lebih awal dikerjakan Dika; SS1-07 (PR #55) dan SS1-10 (PR #56) telah ter-merge di main; SS1-08 selesai lebih awal (18 Okt) menunggu review PR; perbaikan seeder jadwal SS1-05 dan pengaman hapus ruangan siap di PR #57.
 
 Titik pengaman Sen 26 Okt: bila SS1-07 sampai SS1-09 belum merged, SS1-14 dipersempit menjadi satu model plus baseline. Kartu Rangga yang selesai PR dipindah ke Ready for Review sebelum kartu berikutnya dimulai (WIP maksimal 1 kartu In Progress per orang).
 Tanggal adalah rencana kerja. Asumsi penomoran minggu: Minggu 1 = 7 Sep 2026.
@@ -129,7 +138,7 @@ Kalimat jawaban bila ditanya "apakah tim PBL sudah menerapkan materi matkul AI":
 
 | Periode | Fokus |
 |---|---|
-| 16-27 Nov | Auth Admin (SS1-01), CRUD ruangan (SS1-04) dan jadwal, dashboard, laporan unduh, halaman status Mahasiswa, UI threshold dan akun |
+| 16-27 Nov | Pengelolaan jadwal oleh Admin (SS1-06), dashboard, laporan unduh, halaman status Mahasiswa, UI threshold dan akun (catatan: Auth Admin SS1-01 dan CRUD ruangan SS1-04 sudah diselesaikan lebih awal sebelum ATS) |
 | 30 Nov - 4 Des | Integrasi AI-backend-frontend, pengujian, UAT |
 | 7-11 Des | Deployment, manual book, HKI, SDGs, BAST, poster, video |
 | 14-18 Des | Cadangan dan sprint review akhir |

@@ -378,3 +378,96 @@ def test_reject_unauthorized_database():
         override_db_name="smart_space_custom", allow_any_database=True
     )
     assert db_override == "smart_space_custom"
+
+
+# ------------------------------------------------------------------------------
+# 9. Pengujian cakupan jenis hari dan default semester penuh
+# ------------------------------------------------------------------------------
+from app.generator.cli import parse_args, run_generator
+from app.generator.params import SEMESTER_END_DATE, SEMESTER_START_DATE
+from app.models import CalendarException
+
+
+def get_test_calendar_exceptions(db_session):
+    """Mendapatkan daftar pengecualian kalender dari DB atau berkas seeder resmi."""
+    exceptions = db_session.query(CalendarException).all()
+    if not exceptions:
+        from pathlib import Path
+        import csv
+        csv_path = Path(__file__).resolve().parent.parent.parent / "backend" / "database" / "seed-data" / "calendar_exceptions_ganjil2627.csv"
+        if csv_path.exists():
+            with open(csv_path, encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                return [
+                    MockCalendarException(
+                        tanggal_mulai=date.fromisoformat(row["tanggal_mulai"]),
+                        tanggal_selesai=date.fromisoformat(row["tanggal_selesai"]),
+                        tipe=row["tipe"],
+                    )
+                    for row in reader
+                ]
+    return exceptions
+
+
+def test_default_semester_range_covers_all_day_kinds(db_session):
+    """Memverifikasi bahwa rentang semester penuh mencakup biasa, ujian, kegiatan_khusus, dan libur."""
+    exceptions = get_test_calendar_exceptions(db_session)
+    assert len(exceptions) > 0
+
+    kinds = set()
+    cur = SEMESTER_START_DATE
+    while cur <= SEMESTER_END_DATE:
+        if cur.weekday() < 5:
+            k = resolve_day_kind(cur, exceptions)
+            kinds.add(k)
+        cur += timedelta(days=1)
+
+    assert "biasa" in kinds
+    assert "ujian" in kinds
+    assert "kegiatan_khusus" in kinds
+    assert "libur" in kinds
+
+
+def test_holidays_have_no_sessions_across_full_semester(
+    mock_room_regular, mock_schedules, sample_params, db_session
+):
+    """Memverifikasi bahwa seluruh hari libur kalender akademik tidak menghasilkan baris sesi."""
+    exceptions = get_test_calendar_exceptions(db_session)
+    holiday_dates = []
+
+    cur = SEMESTER_START_DATE
+    while cur <= SEMESTER_END_DATE:
+        if cur.weekday() < 5 and resolve_day_kind(cur, exceptions) == "libur":
+            holiday_dates.append(cur)
+        cur += timedelta(days=1)
+
+    assert len(holiday_dates) >= 4  # Natal, Tahun Baru, Isra Mi'raj
+
+    for h_date in holiday_dates:
+        res = simulate_room_day(
+            mock_room_regular,
+            mock_schedules,
+            h_date,
+            "libur",
+            sample_params,
+            seed=1001,
+        )
+        session_gt = [gt for gt in res.ground_truth_rows if gt.schedule_id is not None]
+        assert len(session_gt) == 0
+
+
+def test_cli_defaults_to_full_semester_on_dry_run(capsys):
+    """Memverifikasi CLI menggunakan default semester penuh saat tanpa argumen tanggal."""
+    args = parse_args(["--set", "dev", "--dry-run"])
+
+    assert args.start == str(SEMESTER_START_DATE)
+    assert args.end == str(SEMESTER_END_DATE)
+
+    exit_code = run_generator(args)
+    assert exit_code == 0
+
+    captured = capsys.readouterr()
+    assert "Target Set        : DEV" in captured.out
+    assert f"Rentang Tanggal   : {SEMESTER_START_DATE} s.d. {SEMESTER_END_DATE}" in captured.out
+    assert "Peringatan        : Data adalah simulasi untuk rentang yang sudah/belum berlalu." in captured.out
+    assert "[DRY-RUN]" in captured.out

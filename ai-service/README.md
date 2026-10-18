@@ -65,3 +65,61 @@ python -m pytest -v
 ```
 
 Hasil pengujian memverifikasi bahwa model `OccupancyLog`, `ClassificationResult`, `Room`, `Schedule`, dan `ThresholdSetting` berinteraksi dengan basis data bersama secara benar dan terisolasi dalam transaksi tanpa meninggalkan data sisa.
+
+## Generator Data Dummy (SS1-08)
+
+Modul generator berada di `app/generator/` dan digunakan untuk membangkitkan data dummy okupansi historis (`occupancy_logs`) beserta label kebenaran (*ground truth* CSV) untuk dataset `dev` dan `test`.
+
+### 1. Persiapan Basis Data (`smart_space_ai_dev` & `smart_space_ai_test`)
+
+Generator memerlukan basis data terpisah agar data simulasi tidak bercampur dengan database operasional Laravel (`smart_space`).
+
+Buat database di MySQL (XAMPP):
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS smart_space_ai_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS smart_space_ai_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
+
+Migrasikan skema dan isi data master (rooms, schedules, calendar_exceptions, threshold_settings) **SATU KALI SAJA** per database dari direktori `backend/`:
+
+**Versi PowerShell (Windows):**
+```powershell
+# Migrasi dan seeding smart_space_ai_dev
+$env:DB_DATABASE="smart_space_ai_dev"; php artisan migrate:fresh --seed; Remove-Item Env:DB_DATABASE
+
+# Migrasi dan seeding smart_space_ai_test
+$env:DB_DATABASE="smart_space_ai_test"; php artisan migrate:fresh --seed; Remove-Item Env:DB_DATABASE
+```
+
+**Versi Bash (Linux / macOS):**
+```bash
+# Migrasi dan seeding smart_space_ai_dev
+DB_DATABASE=smart_space_ai_dev php artisan migrate:fresh --seed
+
+# Migrasi dan seeding smart_space_ai_test
+DB_DATABASE=smart_space_ai_test php artisan migrate:fresh --seed
+```
+
+> **Penting:** Pastikan environment variable `DB_DATABASE` dihapus atau tidak menetap agar perintah Laravel berikutnya tidak salah menimpa database target.
+
+### 2. Menjalankan Generator
+
+Jalankan generator dari folder `ai-service/` atau root direktori:
+
+```bash
+# Uji coba simulasi tanpa menulis ke DB maupun CSV (dry-run):
+python -m app.generator --set dev --dry-run
+
+# Pembangkitan data dev (menulis ke smart_space_ai_dev dan data/ground_truth/ground_truth_dev.csv):
+python -m app.generator --set dev
+
+# Pembangkitan data test (menulis ke smart_space_ai_test dan data/ground_truth/ground_truth_test.csv):
+python -m app.generator --set test
+```
+
+**Opsi CLI Tambahan:**
+- `--start YYYY-MM-DD`: Tanggal awal simulasi (default: `2026-09-07`).
+- `--end YYYY-MM-DD`: Tanggal akhir simulasi (default: kemarin WIB).
+- `--seed N`: Menentukan seed acak kustom (default: `1001` untuk dev, `2002` untuk test).
+- `--dry-run`: Hanya mencetak ringkasan distribusi tanpa menyentuh DB atau membuat berkas CSV.
+- `--allow-any-database`: Mengizinkan penulisan ke database di luar daftar resmi (`smart_space_ai_dev` dan `smart_space_ai_test`). Database aplikasi `smart_space` dilindungi secara default.

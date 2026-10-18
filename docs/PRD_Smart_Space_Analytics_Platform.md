@@ -3,12 +3,20 @@
 
 | | |
 |---|---|
-| **Status** | Final v1.1 (menggantikan v1.0), acuan coding Sprint 1 dan roadmap menuju ATS |
-| **Tanggal** | 15 Oktober 2026 (v1.0: 9 Oktober 2026) |
+| **Status** | Final v1.2 (menggantikan v1.1), acuan coding Sprint 1 dan roadmap menuju ATS |
+| **Tanggal** | 18 Oktober 2026 (v1.1: 15 Oktober 2026, v1.0: 9 Oktober 2026) |
 | **Tim** | Rangga Surya Saputra (3312501036), Muradika Laksamana Putra (3312501059) |
 | **Manajer Proyek / Klien** | Yeni Rokhayati, S.Si., M.Sc |
 | **Institusi** | Program Studi Teknik Informatika, Politeknik Negeri Batam |
 | **Proyek pendahulu** | Eco-Light & Space Optimizer (AIoT, selesai Juli 2026) |
+
+## Perubahan dari v1.1 (18 Oktober 2026)
+
+1. Model data & skema: Kunci unik `classification_results` ditetapkan pada (`room_id`, `tanggal`, `waktu_mulai`), unique index pada slot `schedules` (`room_id`, `hari`, `jam_mulai`, menunggu PR #57), serta kolom `rooms.status` diberi label "Kondisi ruangan" (`tersedia`/`tidak tersedia`). (Bagian 10)
+2. Pemisahan database dev (`smart_space_ai_dev`, seed 1001) dan test (`smart_space_ai_test`, seed 2002) untuk mencegah kebocoran data, dengan isolasi pengujian otomatis di `smart_space_test`. Database aplikasi `smart_space` tidak dipakai generator. (Bagian 10)
+3. Rentang data generator dummy diperluas menjadi satu semester penuh (7 September 2026 sampai 22 Januari 2027) menggantikan batasan hingga tanggal berjalan pada rencana awal. (Bagian 10, 15)
+4. Klarifikasi pengamanan master ruangan FR-02: penghapusan ruangan ditolak bila masih memiliki jadwal atau riwayat (`occupancy_logs`, `classification_results`) (klarifikasi tim, belum divalidasi manpro). (Bagian 5)
+5. Kemajuan implementasi: Autentikasi Admin (SS1-01, PR #53) dan CRUD ruangan (SS1-04, PR #54) diselesaikan lebih awal oleh Muradika sebelum ATS; SS1-07 (PR #55) dan SS1-10 (PR #56) telah selesai di `main`. (Bagian 15)
 
 ## Perubahan dari v1.0 (15 Oktober 2026)
 
@@ -75,6 +83,8 @@ Smart Space Analytics Platform adalah **pengembangan lanjutan dari Eco-Light & S
 | FR-11 | Admin dapat mengatur ambang batas (threshold) klasifikasi: (a) durasi minimum ruang dianggap "kosong" meski terjadwal — **nilai: dievaluasi setelah jam terjadwal benar-benar habis**, (b) rentang persentase utilisasi — **nilai final: rendah 0–40%, sedang 41–80%, tinggi 81–100%** Ditambahkan v1.1 (asumsi tim, belum divalidasi manpro): (c) durasi terisi minimum selama jam terjadwal agar sesi tidak dianggap kosong, nilai awal 10 menit; (d) durasi minimum episode pemakaian di luar jadwal agar ditandai, nilai awal 30 menit. Batas kategori utilisasi dibaca: rendah sampai 40%, sedang di atas 40% sampai 80%, tinggi di atas 80% | Final (revisi v1.1) |
 | FR-12 | Admin dapat mengelola akun sendiri (ubah nama/email, ganti password) | Final |
 | FR-13 | Sistem dapat mengambil data peminjaman ruangan dari API PENRU untuk memperkaya informasi pada kategori status "dipakai di luar jadwal", tanpa menambah kategori klasifikasi baru | **Draf** — menunggu akses token dari Pak Andri Betra |
+
+*Catatan klarifikasi FR-02 (18 Okt 2026)*: Penghapusan ruangan ditolak bila ruangan masih memiliki jadwal atau riwayat (`occupancy_logs`, `classification_results`). Kolom `rooms.status` diberi label "Kondisi ruangan" dengan nilai `tersedia`/`tidak tersedia` (data master, bukan status pemakaian harian). Ini merupakan klarifikasi tim dan belum divalidasi manpro.
 
 ## 6. Kebutuhan Non-Fungsional (NFR)
 
@@ -143,14 +153,15 @@ Tier 2 dibatasi pada satu model klasifikasi agar sesuai lingkup RPP (analisis da
 |---|---|---|
 | `admin_accounts` | Laravel | id, nama, email, password_hash |
 | `mahasiswa_accounts` | Laravel | id, nim, password_hash (akun dummy simulasi Learning — **baru**, akibat revisi FR-01) |
-| `rooms` | Laravel | id, nama_ruangan, kapasitas, lokasi, status |
-| `schedules` | Laravel | id, room_id, hari, jam_mulai, jam_selesai, mata_kuliah |
+| `rooms` | Laravel | id, nama_ruangan, kapasitas, lokasi, status (label "Kondisi ruangan", nilai: `tersedia`/`tidak tersedia`, data master) |
+| `schedules` | Laravel | id, room_id, hari, jam_mulai, jam_selesai, mata_kuliah (unique index: `room_id`, `hari`, `jam_mulai` — menunggu PR #57) |
 | `threshold_settings` | Laravel | key, value, keterangan (FR-11). Kunci tambahan v1.1: `empty_min_occupied_minutes` (10) dan `outside_schedule_min_minutes` (30) |
 | `calendar_exceptions` | Laravel (seed dari data real) | tanggal_mulai, tanggal_selesai, tipe (`libur`/`ujian`/`kegiatan_khusus`), keterangan |
 | `occupancy_logs` | Python | id, room_id, slot_mulai (slot 10 menit), is_occupied, source='dummy'; unik pada room_id + slot_mulai |
-| `classification_results` | Python | id, room_id, schedule_id (kosong untuk pemakaian di luar jadwal), tanggal, waktu_mulai, waktu_selesai, status, menit_terjadwal, menit_terpakai, utilisasi_pct (kosong bila menit_terjadwal = 0), rule_id, penjelasan, computed_at; satu baris per ruang per sesi per tanggal, atau per episode pemakaian di luar jadwal |
+| `classification_results` | Python | id, room_id, schedule_id (kosong untuk pemakaian di luar jadwal), tanggal, waktu_mulai, waktu_selesai, status, menit_terjadwal, menit_terpakai, utilisasi_pct (kosong bila menit_terjadwal = 0), rule_id, penjelasan, computed_at; unik pada (`room_id`, `tanggal`, `waktu_mulai`); satu baris per ruang per sesi per tanggal, atau per episode pemakaian di luar jadwal |
 
 Catatan v1.1: utilisasi per periode (hari, minggu, semester berjalan) dihitung saat query dari classification_results. Rincian di docs/DATA_CONTRACT.md (kartu SS1-07).
+Catatan v1.2: Dua database terpisah digunakan untuk generator dummy: `smart_space_ai_dev` (seed 1001) dan `smart_space_ai_test` (seed 2002) untuk evaluasi tanpa kebocoran data. `smart_space_test` dipakai terisolasi untuk unit test otomatis. Database aplikasi `smart_space` tidak dipakai generator. Rentang data generator mencakup satu semester penuh (7 Sep 2026 s.d. 22 Jan 2027).
 
 ## 11. Risiko Utama (ringkas dari HIRARC)
 
@@ -181,6 +192,7 @@ Catatan v1.1: utilisasi per periode (hari, minggu, semester berjalan) dihitung s
 3. RPP bagian 11 dan 13 sengaja dikosongkan untuk saat ini, keputusan tim, bukan terlewat. Tidak memblokir coding.
 4. Asumsi ambang baru (FR-11 c dan d) divalidasi dengan manpro pada sprint review 29 Okt 2026.
 5. Bentuk dan tanggal penilaian ATS belum diketahui. Rencana mengasumsikan yang dinilai adalah AI yang sudah berjalan; slide IF316 menyebut ATS sebagai presentasi rancangan, sehingga dokumen rancangan AI (SS1-13) disiapkan untuk keduanya.
+6. Validasi klarifikasi FR-02 (penolakan penghapusan ruangan yang memiliki jadwal atau riwayat log/klasifikasi) dan validasi apakah ruangan berkondisi "tidak tersedia" dikecualikan dari analitik pada sprint review 29 Okt 2026 (belum diputuskan, belum diimplementasikan).
 
 Catatan kecil: FR-12 di dokumen Praktikum 3 resmi ada typo pengetikan ("megalopa" seharusnya "mengelola"), tidak memengaruhi arti, perbaiki saat sempat.
 
@@ -204,12 +216,12 @@ Berdasarkan arahan matkul Proyek Inovasi Agile Minggu 4-5:
 - Riwayat commit harus menunjukkan kontribusi seimbang dari kedua akun anggota tim.
 - Status board Siap PBL harus mencerminkan progres aktual sebelum pertemuan Minggu 6.
 
-## 15. Roadmap Tingkat Tinggi (v1.1, rinci di docs/ROADMAP.md)
+## 15. Roadmap Tingkat Tinggi (v1.2, rinci di docs/ROADMAP.md)
 
-- **Sprint 1 (sampai 30 Okt 2026, inti AI):** kontrak data dan migrasi, generator data dummy, sistem pakar klasifikasi (Tier 1), utilisasi dan statistik, FastAPI, validasi, model ML klasifikasi (Tier 2), dokumen rancangan AI. Sudah selesai: skema DB dan setup (SS1-03), autentikasi Mahasiswa dan layout (SS1-02).
+- **Sprint 1 (sampai 30 Okt 2026, inti AI):** kontrak data dan migrasi, generator data dummy (rentang semester penuh: 7 Sep 2026 s.d. 22 Jan 2027), sistem pakar klasifikasi (Tier 1), utilisasi dan statistik, FastAPI, validasi, model ML klasifikasi (Tier 2), dokumen rancangan AI. Sudah selesai: skema DB dan setup (SS1-03), autentikasi Mahasiswa dan layout (SS1-02), autentikasi Admin (SS1-01, PR #53), CRUD ruangan (SS1-04, PR #54), kontrak data AI (SS1-07, PR #55), serta utilisasi dan statistik (SS1-10, PR #56).
 - **ATS (2-13 Nov 2026):** cadangan, perbaikan kecil, latihan presentasi.
-- **Sprint 2 (setelah ATS):** autentikasi Admin (SS1-01), CRUD ruangan dan jadwal, dashboard, laporan unduh, halaman status Mahasiswa, pengaturan threshold dan akun, rekomendasi Tier 3, simulasi data berjalan, UAT, deployment, dokumen luaran.
+- **Sprint 2 (setelah ATS):** pengelolaan jadwal oleh Admin (SS1-06), dashboard, laporan unduh, halaman status Mahasiswa, pengaturan threshold dan akun, rekomendasi Tier 3, simulasi data berjalan (NFR-01), UAT, deployment, dokumen luaran.
 - **Terblokir token:** integrasi API Learning dan PENRU (FR-03, FR-13).
 
 ---
-*Dokumen ini dibuat berdasarkan RPP PBLIF3-PD08, Praktikum 3 (FR/NFR/Use Case), hasil diskusi arsitektur, dan data jadwal real Prodi IF. Perbarui bagian 13 setelah setiap keputusan baru. Diperbarui ke v1.1 pada 15 Oktober 2026 berdasarkan keputusan tim dan materi matkul AI minggu 1 sampai 6.*
+*Dokumen ini dibuat berdasarkan RPP PBLIF3-PD08, Praktikum 3 (FR/NFR/Use Case), hasil diskusi arsitektur, dan data jadwal real Prodi IF. Perbarui bagian 13 setelah setiap keputusan baru. Diperbarui ke v1.2 pada 18 Oktober 2026 berdasarkan sinkronisasi keputusan pemisahan database dev/test, antarmuka nyata AI, klarifikasi kondisi ruangan, dan kemajuan implementasi terkini.*

@@ -17,19 +17,12 @@ from app.generator.ground_truth import (
     create_outside_episode_ground_truth,
     evaluate_session_ground_truth,
 )
+from app.calendar_utils import matches_day_of_week
 from app.generator.params import (
     SCENARIO_NAMES,
     SCENARIO_PENYEBAB,
     GeneratorParams,
 )
-
-HARI_MAP: dict[int, str] = {
-    0: "senin",
-    1: "selasa",
-    2: "rabu",
-    3: "kamis",
-    4: "jumat",
-}
 
 
 @dataclass(frozen=True)
@@ -80,18 +73,6 @@ def build_operational_slots(
         current_dt += step
 
     return slots
-
-
-def matches_day_of_week(hari_str: str, weekday_int: int) -> bool:
-    """Memeriksa kesesuaian nama hari jadwal dengan hari kalender (Senin-Jumat).
-
-    Mendukung penulisan 'Jum\'at' maupun 'Jumat'.
-    """
-    if weekday_int not in HARI_MAP:
-        return False
-    expected = HARI_MAP[weekday_int]
-    cleaned = hari_str.replace("'", "").strip().lower()
-    return cleaned == expected
 
 
 def simulate_room_day(

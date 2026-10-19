@@ -33,7 +33,7 @@
                     <th class="px-4 py-3 font-semibold">Nama ruangan</th>
                     <th class="px-4 py-3 font-semibold">Kapasitas</th>
                     <th class="px-4 py-3 font-semibold">Lokasi</th>
-                    <th class="px-4 py-3 font-semibold">Status</th>
+                    <th class="px-4 py-3 font-semibold">Kondisi ruangan</th>
                     <th class="px-4 py-3 font-semibold">Aksi</th>
                 </tr>
             </thead>

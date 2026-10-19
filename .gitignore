@@ -18,6 +18,7 @@ env/
 # Databases & Storage
 backend/database/*.sqlite
 backend/database/*.sqlite-journal
+ai-service/data/
 storage/*.key
 
 # Logs & Cache

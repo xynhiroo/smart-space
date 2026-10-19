@@ -3,14 +3,14 @@
 | | |
 |---|---|
 | **Kartu** | SS1-07 (issue #40) |
-| **Versi** | Draf 1.0, 16 Oktober 2026 |
+| **Versi** | 1.1, 18 Oktober 2026 |
 | **Pemilik** | Rangga Surya Saputra (reviewer: Muradika Laksamana Putra) |
-| **Acuan** | PRD v1.1 Bagian 5 (FR-04, FR-05, FR-06, FR-10, FR-11), Bagian 10; docs/ROADMAP.md Bagian 3 |
+| **Acuan** | PRD v1.2 Bagian 5 (FR-04, FR-05, FR-06, FR-10, FR-11), Bagian 10; docs/ROADMAP.md Bagian 3 |
 | **Pengguna dokumen** | SS1-08 generator, SS1-09 sistem pakar, SS1-10 utilisasi, SS1-11 FastAPI, SS1-12 validasi, SS1-14 model ML |
  
-Dokumen ini adalah kesepakatan bentuk data dan definisi operasional antara generator, sistem pakar, penghitung utilisasi, dan API. Perubahan setelah PR SS1-07 di-merge harus lewat PR yang diperiksa kedua anggota tim dan dicatat di Bagian 13.
+Dokumen ini adalah kesepakatan bentuk data dan definisi operasional antara generator, sistem pakar, penghitung utilisasi, dan API. Perubahan setelah PR SS1-07 di-merge harus lewat PR yang diperiksa kedua anggota tim dan dicatat di Bagian 14.
  
-Butir bertanda **[USULAN]** adalah keputusan rancangan yang belum tertulis di PRD atau ROADMAP dan perlu disetujui reviewer di PR ini.
+Butir bertanda **[USULAN]** adalah keputusan rancangan yang belum tertulis di PRD atau ROADMAP dan perlu disetujui reviewer di PR ini. Butir bertanda **[DISETUJUI]** adalah keputusan yang telah disepakati bersama.
  
 ---
  
@@ -28,9 +28,23 @@ Di luar lingkup: IoT, sensor, kamera, kontrol hardware, booking ruang, dan aktor
 | Ukuran slot | 10 menit. Slot dengan `slot_mulai = T` mencakup rentang `[T, T + 10 menit)`. |
 | Jam operasional | 07.00 sampai 23.00. Slot pertama 07.00, slot terakhir 22.50. Total 96 slot per hari. |
 | Jeda | Slot 17.00 (rentang 17.00 sampai 17.10) dianggap ruangan tutup. Tidak ada baris `occupancy_logs` pada slot ini, dan slot ini tidak dihitung dalam menit terjadwal maupun menit terpakai. Maksimum baris per ruang per hari adalah 95. |
-| Hari | `schedules.hari` memakai nama hari Bahasa Indonesia (Senin sampai Jumat). Pemetaan ke tanggal kalender lewat hari dalam minggu. |
+| Hari | `schedules.hari` memakai nama hari Bahasa Indonesia: `Senin, Selasa, Rabu, Kamis, Jum'at` (dengan tanda petik pada `Jum'at`). Normalisasi nama hari disediakan pada modul bersama `app/calendar_utils.py` (menangani variasi penulisan seperti `Jumat` tanpa tanda petik, perbedaan huruf besar/kecil, dan spasi). Pemetaan ke tanggal kalender lewat hari dalam minggu. |
 | Kelipatan 10 menit | Semua `jam_mulai` dan `jam_selesai` di `schedules` harus kelipatan 10 menit dan jatuh pada batas slot. Test SS1-07 memeriksa ke-102 jadwal hasil seeder. Bila ada yang tidak selaras, dicatat sebagai temuan dan diselesaikan sebelum SS1-09. |
-| Tumpang tindih | Dua jadwal pada ruang dan hari yang sama tidak boleh saling tumpang tindih. Dicek oleh test yang sama. |
+| Tumpang tindih | Dua jadwal pada ruang dan hari yang sama tidak boleh saling tumpang tindih. Seeder jadwal bersifat idempoten dengan unique index (`room_id`, `hari`, `jam_mulai`) pada `schedules` (menunggu PR #57). |
+ 
+## 2a. Set data dev dan test
+ 
+Untuk menjamin pemisahan data evaluasi dan mencegah kebocoran data (HIRARC risiko 4), generator dummy memisahkan lingkungan database dan berkas ground truth sebagai berikut:
+ 
+| Hal | Ketentuan |
+|---|---|
+| Database dev | `smart_space_ai_dev` (seed 1001), skema sama dengan database utama. Dipakai untuk merancang dan menyetel aturan sistem pakar serta ambang batas. |
+| Database test | `smart_space_ai_test` (seed 2002), skema sama. Dipakai untuk evaluasi akhir dan pengujian performa tanpa bias. |
+| Database test otomatis | `smart_space_test` dipakai secara terisolasi untuk unit test `pytest` dan PHPUnit. |
+| Database aplikasi | Database aplikasi `smart_space` tidak dipakai oleh generator data dummy. |
+| Rentang data | Satu semester penuh: 7 September 2026 sampai 22 Januari 2027 (menggantikan batasan hingga tanggal berjalan pada rencana awal). Data tetap berupa simulasi historis; simulasi berjalan (NFR-01) dikembangkan setelah ATS. |
+| Berkas ground truth | Disimpan di `ai-service/data/ground_truth/ground_truth_dev.csv` dan `ground_truth_test.csv` di luar database. Berkas ini tidak masuk git dan dihasilkan ulang secara deterministik dari seed. |
+| Aturan evaluasi | Penyetelan aturan dan ambang hanya boleh dilakukan pada set dev; set test hanya dievaluasi satu kali pada tahap pengujian (SS1-12). |
  
 ## 3. Kepemilikan tabel
  
@@ -140,7 +154,6 @@ Dibaca dari `threshold_settings` (kolom `value` bertipe teks, di-parse oleh pemu
 | `utilization_low_max` | 40 | Batas atas kategori rendah (%) | Sudah ada |
 | `utilization_medium_max` | 80 | Batas atas kategori sedang (%) | Sudah ada |
 | `empty_status_evaluation_timing` | `after_schedule_finished` | Kebijakan waktu evaluasi (Bagian 7.1) | Sudah ada |
-| `empty_status_use_start_tolerance` | | Tidak ada di PRD dan tidak dipakai | **Dihapus** |
  
 Kunci `utilization_low_min`, `utilization_medium_min`, `utilization_high_min`, dan `utilization_high_max` tetap ada di seeder untuk tampilan UI, tetapi penghitung kategori hanya memakai dua batas atas di atas (Bagian 10).
  
@@ -158,10 +171,15 @@ Rumus (FR-06):
 utilisasi_pct = menit_terpakai / menit_terjadwal x 100
 ```
  
-- **Per baris sesi:** dihitung langsung, dibulatkan 2 desimal. Bernilai kosong bila `menit_terjadwal = 0`.
+- **Per baris sesi:** dihitung langsung, dibulatkan 2 desimal saat ditulis ke database. Bernilai kosong bila `menit_terjadwal = 0`.
 - **Per periode (hari, minggu, semester berjalan):** dihitung saat kueri dari baris sesi:
   `sum(menit_terpakai) / sum(menit_terjadwal) x 100`, hanya baris dengan `schedule_id IS NOT NULL`. Ini rata-rata terbobot, bukan rata-rata persentase. Episode di luar jadwal tidak masuk pembilang maupun penyebut.
 - Bila `sum(menit_terjadwal) = 0`, hasilnya `None` dan kategorinya `None` (ditampilkan sebagai "tidak ada jadwal").
+
+Implementasi fungsi analitik nyata berada di modul `ai-service/app/analytics/utilization.py` (`hitung_utilisasi_pct`, `tentukan_kategori`, `hitung_statistik_ruang`, dsb.). Fungsi perhitungan mengembalikan nilai float persis (tidak dibulatkan di dalam modul perhitungan); pembulatan 2 desimal dilakukan saat menyimpan hasil ke kolom `utilisasi_pct` di database atau saat presentasi data.
+
+Ambang kategori dikirimkan sebagai argumen fungsi `batas_rendah` dan `batas_sedang` (mengambil nilai dari `utilization_low_max` dan `utilization_medium_max`). Konstanta kategori: `KATEGORI_RENDAH = "rendah"`, `KATEGORI_SEDANG = "sedang"`, `KATEGORI_TINGGI = "tinggi"`.
+
 Kategori (celah desimal 40 sampai 41 dan 80 sampai 81 ditutup sesuai PRD FR-11):
  
 | Kondisi | Kategori |
@@ -171,43 +189,141 @@ Kategori (celah desimal 40 sampai 41 dan 80 sampai 81 ditutup sesuai PRD FR-11):
 | selebihnya | `tinggi` |
  
 ## 11. Antarmuka fungsi Python
- 
-Lokasi usulan: `ai-service/app/contracts.py` (tipe data) dan `ai-service/app/expert_system/`, `ai-service/app/analytics/` (implementasi). Semua fungsi di bawah adalah **fungsi murni**: tidak mengakses DB, tidak membaca waktu sistem, dan deterministik. Akses DB ada di lapisan repositori terpisah (SS1-11), sehingga SS1-09 dan SS1-10 dapat dites dengan data buatan tangan.
- 
+
+Semua fungsi di bawah adalah **fungsi murni**: tidak mengakses database, tidak membaca waktu sistem, deterministik, dan memakai konvensi penamaan Bahasa Indonesia. Akses database berada di lapisan repositori terpisah (SS1-11), sehingga pengujian dapat dilakukan menggunakan data buatan tangan.
+
+### 11.1 Utilisasi (antarmuka nyata SS1-10)
+
+Diimplementasikan pada modul `ai-service/app/analytics/utilization.py` (sudah ter-merge di `main`):
+
+```python
+from __future__ import annotations
+
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import date
+from typing import Iterable, Sequence
+
+KATEGORI_RENDAH = "rendah"
+KATEGORI_SEDANG = "sedang"
+KATEGORI_TINGGI = "tinggi"
+
+
+@dataclass(frozen=True)
+class Sesi:
+    """Satu sesi pada satu tanggal, dalam satuan menit."""
+    room_id: int
+    tanggal: date
+    menit_terjadwal: int
+    menit_terpakai: int
+
+
+@dataclass(frozen=True)
+class StatistikRuang:
+    """Ringkasan utilisasi satu ruang pada satu periode."""
+    room_id: int
+    menit_terjadwal: int
+    menit_terpakai: int
+    selisih_menit: int
+    utilisasi_pct: float | None
+    kategori: str | None
+    rata_rata_harian_pct: float | None
+    min_harian_pct: float | None
+    max_harian_pct: float | None
+
+
+@dataclass(frozen=True)
+class KorelasiRuang:
+    """Korelasi menit terjadwal vs menit terpakai antar ruang."""
+    jumlah_ruang: int
+    pearson: float | None
+    spearman: float | None
+
+
+def hitung_utilisasi_pct(menit_terjadwal: int, menit_terpakai: int) -> float | None:
+    """Utilisasi (%) = menit terpakai / menit terjadwal x 100.
+    Mengembalikan None bila menit terjadwal nol. Nilai kembali tidak dibulatkan.
+    """
+    ...
+
+
+def tentukan_kategori(
+    utilisasi_pct: float | None, batas_rendah: float, batas_sedang: float
+) -> str | None:
+    """Kategori utilisasi: <= batas_rendah rendah, <= batas_sedang sedang, selebihnya tinggi."""
+    ...
+
+
+def hitung_statistik_ruang(
+    sesi: Iterable[Sesi],
+    tanggal_mulai: date,
+    tanggal_selesai: date,
+    batas_rendah: float,
+    batas_sedang: float,
+    daftar_room_id: Iterable[int] = (),
+) -> dict[int, StatistikRuang]:
+    """Statistik per ruang untuk rentang tanggal (inklusif)."""
+    ...
+
+
+def korelasi_pearson(x: Sequence[float], y: Sequence[float]) -> float | None:
+    """Korelasi Pearson antara dua deret angka."""
+    ...
+
+
+def korelasi_spearman(x: Sequence[float], y: Sequence[float]) -> float | None:
+    """Korelasi Spearman (Pearson pada peringkat)."""
+    ...
+
+
+def korelasi_jadwal_vs_terpakai(statistik: Iterable[StatistikRuang]) -> KorelasiRuang:
+    """Korelasi menit terjadwal vs terpakai antar ruang."""
+    ...
+```
+
+### 11.2 Sistem pakar (sementara, difinalkan di PR SS1-09)
+
+Antarmuka sistem pakar mengikuti konvensi yang sama dengan SS1-10: fungsi murni Bahasa Indonesia, tanpa akses database, ambang dikirim lewat argumen/dataclass `Ambang`, dan hasil evaluasi dapat dipetakan langsung ke tipe `Sesi` untuk penghitungan utilisasi:
+
 ```python
 from dataclasses import dataclass
 from datetime import date, datetime, time
- 
+
+
 @dataclass(frozen=True)
-class Thresholds:
-    empty_min_occupied_minutes: int
-    outside_schedule_min_minutes: int
-    utilization_low_max: float
-    utilization_medium_max: float
- 
-@dataclass(frozen=True)
-class RoomFact:
+class FaktaRuang:
     room_id: int
     nama_ruangan: str
     is_open_space: bool          # GU 701, GU 705, GU 707
- 
+
+
 @dataclass(frozen=True)
-class ScheduleFact:
+class FaktaJadwal:
     schedule_id: int
     room_id: int
     hari: str
     jam_mulai: time
     jam_selesai: time
     mata_kuliah: str
- 
+
+
 @dataclass(frozen=True)
-class OccupancySlot:
+class SlotOkupansi:
     room_id: int
     slot_mulai: datetime         # WIB, kelipatan 10 menit
     is_occupied: bool
- 
+
+
 @dataclass(frozen=True)
-class ClassificationResult:      # satu baris classification_results
+class Ambang:
+    empty_min_occupied_minutes: int
+    outside_schedule_min_minutes: int
+    batas_rendah: float
+    batas_sedang: float
+
+
+@dataclass(frozen=True)
+class HasilKlasifikasi:          # merepresentasikan satu baris classification_results
     room_id: int
     schedule_id: int | None
     tanggal: date
@@ -216,58 +332,50 @@ class ClassificationResult:      # satu baris classification_results
     status: str                  # nilai Bagian 6
     menit_terjadwal: int
     menit_terpakai: int
-    utilisasi_pct: float | None
+    utilisasi_pct: float | None  # dihitung tidak dibulatkan; dibulatkan saat simpan ke DB
     rule_id: str
     penjelasan: str
- 
-@dataclass(frozen=True)
-class UtilizationSummary:
-    room_id: int
-    periode_mulai: date
-    periode_selesai: date
-    menit_terjadwal: int
-    menit_terpakai: int
-    utilisasi_pct: float | None
-    kategori: str | None         # rendah / sedang / tinggi / None
-    jumlah_sesi: int
-    jumlah_sesi_kosong: int
-    jumlah_episode_di_luar_jadwal: int
-```
- 
-Fungsi (diimplementasikan di kartu yang tercantum):
- 
-```python
-# SS1-09
-def classify_session(
-    room: RoomFact, schedule: ScheduleFact, slots: list[OccupancySlot],
-    tanggal: date, waktu_evaluasi: datetime, thresholds: Thresholds,
-) -> ClassificationResult | None:
+
+
+# Fungsi murni sistem pakar (nama sementara, difinalkan di PR SS1-09):
+def klasifikasikan_sesi(
+    ruang: FaktaRuang,
+    jadwal: FaktaJadwal,
+    slot_list: list[SlotOkupansi],
+    tanggal: date,
+    waktu_evaluasi: datetime,
+    ambang: Ambang,
+) -> HasilKlasifikasi | None:
     """Klasifikasi satu sesi. None bila sesi belum berakhir pada waktu_evaluasi."""
- 
-def detect_outside_schedule(
-    room: RoomFact, schedules: list[ScheduleFact], slots: list[OccupancySlot],
-    tanggal: date, waktu_evaluasi: datetime, thresholds: Thresholds,
-) -> list[ClassificationResult]:
+    ...
+
+
+def deteksi_pemakaian_luar_jadwal(
+    ruang: FaktaRuang,
+    daftar_jadwal: list[FaktaJadwal],
+    slot_list: list[SlotOkupansi],
+    tanggal: date,
+    waktu_evaluasi: datetime,
+    ambang: Ambang,
+) -> list[HasilKlasifikasi]:
     """Episode pemakaian di luar jadwal pada satu ruang dan satu tanggal."""
- 
-def classify_day(
-    room: RoomFact, schedules: list[ScheduleFact], slots: list[OccupancySlot],
-    tanggal: date, waktu_evaluasi: datetime, thresholds: Thresholds,
+    ...
+
+
+def klasifikasikan_hari(
+    ruang: FaktaRuang,
+    daftar_jadwal: list[FaktaJadwal],
+    slot_list: list[SlotOkupansi],
+    tanggal: date,
+    waktu_evaluasi: datetime,
+    ambang: Ambang,
     is_holiday: bool,
-) -> list[ClassificationResult]:
-    """Gabungan keduanya. Pada hari libur hanya episode yang dievaluasi."""
- 
-# SS1-10
-def categorize_utilization(pct: float | None, thresholds: Thresholds) -> str | None: ...
- 
-def compute_utilization(
-    results: list[ClassificationResult], periode_mulai: date,
-    periode_selesai: date, thresholds: Thresholds,
-) -> UtilizationSummary:
-    """Satu ruang, satu periode. Aturan Bagian 10."""
+) -> list[HasilKlasifikasi]:
+    """Gabungan evaluasi harian. Pada hari libur hanya episode luar jadwal yang dievaluasi."""
+    ...
 ```
- 
-Pemuat ambang (`load_thresholds(session) -> Thresholds`) dan penulis hasil (`save_results(session, results)`) ada di lapisan repositori (SS1-11) dan memakai kunci unik serta aturan idempotensi di Bagian 5 dan 9.
+
+Pemuat ambang dari database dan penyimpan hasil ke database disediakan pada lapisan repositori (SS1-11) dengan memanfaatkan kunci unik dan prinsip idempotensi (Bagian 5 dan 9).
  
 ## 12. Aturan awal sistem pakar (indikatif)
  
@@ -288,15 +396,25 @@ Kalimat tentang TU pada R02 bersifat informasi saja, bukan fitur booking.
 3. Rangkaian episode diputus oleh slot hilang, sehingga satu pemakaian panjang dapat terpecah dan tidak mencapai 30 menit bila noise slot hilang mengenai bagian tengah. Dampaknya diukur di SS1-12.
 4. Dua ambang awal (10 dan 30 menit) adalah asumsi tim sampai divalidasi manpro pada 29 Okt 2026.
 5. Kalender akademik memengaruhi sesi hanya lewat tipe `libur`. Pola khusus masa ujian ditangani generator.
+6. Data satu semester penuh (7 Sep 2026 s.d. 22 Jan 2027) adalah simulasi sintetis karena sebagian tanggal belum terjadi pada saat implementasi.
+7. Ambang 10 menit untuk sesi kosong rapuh terhadap noise 1% per slot (hipotesis bahwa fluktuasi acak dapat mempengaruhi hasil klasifikasi sesi pendek, diuji pada SS1-12).
 ## 14. Perubahan dari PRD v1.1 dan riwayat
  
 Butir yang menambah atau memperjelas PRD v1.1 (untuk disetujui reviewer):
  
-- Kunci unik `classification_results` pada (`room_id`, `tanggal`, `waktu_mulai`) [USULAN].
-- Slot hilang dihitung tidak terisi dan memutus episode [USULAN].
-- Pembanding `<` pada ambang sesi kosong dan pembobotan utilisasi per periode [USULAN].
-- Aturan hari libur dan syarat jadwal kelipatan 10 menit tanpa tumpang tindih [USULAN].
+- Kunci unik `classification_results` pada (`room_id`, `tanggal`, `waktu_mulai`) [DISETUJUI].
+- Slot hilang dihitung tidak terisi dan memutus episode [DISETUJUI].
+- Pembanding `<` pada ambang sesi kosong dan pembobotan utilisasi per periode [DISETUJUI].
+- Aturan hari libur dan syarat jadwal kelipatan 10 menit tanpa tumpang tindih [DISETUJUI].
+- Pemisahan set data dev (`smart_space_ai_dev`, seed 1001) dan test (`smart_space_ai_test`, seed 2002); isolasi test di `smart_space_test` [DISETUJUI].
+- Rentang data generator diperluas ke satu semester penuh (7 Sep 2026 s.d. 22 Jan 2027) [DISETUJUI].
+- Antarmuka analitik AI menggunakan konvensi Bahasa Indonesia dan fungsi murni pada `app/analytics/utilization.py` (SS1-10) dengan pembulatan 2 desimal saat penulisan ke database [DISETUJUI].
+- Nama hari di database: `Senin, Selasa, Rabu, Kamis, Jum'at` (dengan tanda petik) dan normalisasi lewat `app/calendar_utils.py` [DISETUJUI].
+- Seeder jadwal idempoten dengan unique index slot jadwal pada `schedules` (menunggu PR #57) [DISETUJUI].
+- Pengamanan data master ruangan: penghapusan ruangan ditolak bila memiliki jadwal atau riwayat (`occupancy_logs`, `classification_results`), dan kolom `rooms.status` bermakna kondisi ruangan (`tersedia`/`tidak tersedia`) [DISETUJUI].
+
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| Draf 1.0 | 16 Okt 2026 | Draf awal SS1-07 |
+| 1.0 | 16 Okt 2026 | Draf awal SS1-07 |
+| 1.1 | 18 Okt 2026 | Sinkronisasi keputusan pemisahan dev/test DB, rentang semester penuh, antarmuka nyata SS1-10 (utilization.py), normalisasi hari, perlindungan master ruangan, dan penyesuaian status implementasi |
  

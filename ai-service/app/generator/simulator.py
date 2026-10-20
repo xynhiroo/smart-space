@@ -23,6 +23,14 @@ from app.generator.params import (
     SCENARIO_PENYEBAB,
     GeneratorParams,
 )
+from app.waktu_operasional import (
+    JAM_BUKA_OPERASIONAL,
+    JAM_JEDA,
+    JAM_TUTUP_OPERASIONAL,
+    MENIT_JEDA,
+    MENIT_PER_SLOT,
+    generate_operational_slots,
+)
 
 
 @dataclass(frozen=True)
@@ -54,25 +62,20 @@ def add_minutes_to_time(t: time, minutes: int) -> time:
 
 
 def build_operational_slots(
-    start_hour: int = 7,
-    end_hour: int = 23,
-    step_minutes: int = 10,
-    break_hour: int = 17,
-    break_minute: int = 0,
+    start_hour: int = JAM_BUKA_OPERASIONAL,
+    end_hour: int = JAM_TUTUP_OPERASIONAL,
+    step_minutes: int = MENIT_PER_SLOT,
+    break_hour: int = JAM_JEDA,
+    break_minute: int = MENIT_JEDA,
 ) -> list[time]:
     """Membangun daftar slot operasional 10 menit (07.00 - 22.50), mengecualikan slot 17.00."""
-    slots: list[time] = []
-    current_dt = datetime(2000, 1, 1, start_hour, 0)
-    end_dt = datetime(2000, 1, 1, end_hour, 0)
-    step = timedelta(minutes=step_minutes)
-
-    while current_dt < end_dt:
-        t = current_dt.time()
-        if not (t.hour == break_hour and t.minute == break_minute):
-            slots.append(t)
-        current_dt += step
-
-    return slots
+    return generate_operational_slots(
+        start_hour=start_hour,
+        end_hour=end_hour,
+        step_minutes=step_minutes,
+        break_hour=break_hour,
+        break_minute=break_minute,
+    )
 
 
 def simulate_room_day(

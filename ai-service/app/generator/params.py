@@ -4,6 +4,14 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Mapping, Sequence
 
+from app.waktu_operasional import (
+    JAM_BUKA_OPERASIONAL,
+    JAM_JEDA,
+    JAM_TUTUP_OPERASIONAL,
+    MENIT_JEDA,
+    MENIT_PER_SLOT,
+)
+
 DEV_SEED: int = 1001
 TEST_SEED: int = 2002
 
@@ -65,11 +73,11 @@ class GeneratorParams:
     outside_schedule_min_minutes: int = 30
 
     # Jam operasional & grid
-    operational_start_hour: int = 7
-    operational_end_hour: int = 23
-    slot_minutes: int = 10
-    break_hour: int = 17
-    break_minute: int = 0
+    operational_start_hour: int = JAM_BUKA_OPERASIONAL
+    operational_end_hour: int = JAM_TUTUP_OPERASIONAL
+    slot_minutes: int = MENIT_PER_SLOT
+    break_hour: int = JAM_JEDA
+    break_minute: int = MENIT_JEDA
 
     # Ruang open-space
     open_space_room_names: tuple[str, ...] = ("GU 701", "GU 705", "GU 707")

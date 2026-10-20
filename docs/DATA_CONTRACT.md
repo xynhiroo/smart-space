@@ -281,7 +281,7 @@ def korelasi_jadwal_vs_terpakai(statistik: Iterable[StatistikRuang]) -> Korelasi
     ...
 ```
 
-### 11.2 Sistem pakar (sementara, difinalkan di PR SS1-09)
+### 11.2 Sistem pakar (FINAL SS1-09)
 
 Antarmuka sistem pakar mengikuti konvensi yang sama dengan SS1-10: fungsi murni Bahasa Indonesia, tanpa akses database, ambang dikirim lewat argumen/dataclass `Ambang`, dan hasil evaluasi dapat dipetakan langsung ke tipe `Sesi` untuk penghitungan utilisasi:
 
@@ -337,7 +337,7 @@ class HasilKlasifikasi:          # merepresentasikan satu baris classification_r
     penjelasan: str
 
 
-# Fungsi murni sistem pakar (nama sementara, difinalkan di PR SS1-09):
+# Fungsi murni sistem pakar:
 def klasifikasikan_sesi(
     ruang: FaktaRuang,
     jadwal: FaktaJadwal,
@@ -377,17 +377,31 @@ def klasifikasikan_hari(
 
 Pemuat ambang dari database dan penyimpan hasil ke database disediakan pada lapisan repositori (SS1-11) dengan memanfaatkan kunci unik dan prinsip idempotensi (Bagian 5 dan 9).
  
-## 12. Aturan awal sistem pakar (indikatif)
- 
-Daftar final aturan ditetapkan di SS1-09. Di sini hanya ID yang dicadangkan agar `rule_id` konsisten sejak awal.
- 
-| rule_id | Kondisi | Status | Contoh penjelasan |
+## 12. Aturan sistem pakar (FINAL SS1-09)
+
+Aturan sistem pakar dievaluasi menggunakan mesin inferensi *forward chaining* deterministik. Aturan terbagi menjadi dua kelompok:
+
+### 12.1 Aturan turunan fakta (F..)
+
+| rule_id | Nama aturan | Kondisi | Kesimpulan |
 |---|---|---|---|
-| R01 | Sesi berakhir dan `menit_terpakai >= empty_min_occupied_minutes` | `sesuai_jadwal` | "Ruang terisi {x} dari {y} menit terjadwal." |
-| R02 | Sesi berakhir dan `menit_terpakai < empty_min_occupied_minutes` | `kosong_meski_terjadwal` | "Ruang terisi hanya {x} menit dari {y} menit terjadwal. Ruang ini berpotensi dimanfaatkan kegiatan lain lewat peminjaman di TU." |
-| R03 | Episode okupansi di luar jadwal berdurasi `>= outside_schedule_min_minutes` | `dipakai_di_luar_jadwal` | "Ruang terisi {x} menit di luar jadwal ({mulai} sampai {selesai}). Perlu ditinjau Admin." |
- 
-Kalimat tentang TU pada R02 bersifat informasi saja, bukan fitur booking.
+| F01 | Deteksi Sesi Berakhir | Sesi perkuliahan dengan `waktu_evaluasi >= tanggal + jam_selesai` | `sesi_telah_berakhir = True` |
+| F02 | Evaluasi Okupansi Sesi Kurang | `sesi_telah_berakhir` dan `menit_terpakai < empty_min_occupied_minutes` | `okupansi_sesi_kurang = True` |
+| F03 | Evaluasi Okupansi Sesi Memenuhi | `sesi_telah_berakhir` dan `menit_terpakai >= empty_min_occupied_minutes` | `okupansi_sesi_cukup = True` |
+| F04 | Evaluasi Durasi Episode Cukup | Episode di luar jadwal dengan `durasi_episode >= outside_schedule_min_minutes` | `episode_cukup_panjang = True` |
+
+### 12.2 Aturan keputusan status (R..)
+
+| rule_id | Kondisi | Status | Templat penjelasan |
+|---|---|---|---|
+| R01 | `okupansi_sesi_cukup` terpenuhi | `sesuai_jadwal` | `"Ruang terisi {menit_terpakai} dari {menit_terjadwal} menit terjadwal."` |
+| R02 | `okupansi_sesi_kurang` terpenuhi | `kosong_meski_terjadwal` | `"Ruang terisi hanya {menit_terpakai} menit dari {menit_terjadwal} menit terjadwal. Ruang ini berpotensi dimanfaatkan kegiatan lain lewat peminjaman di TU."` |
+| R03 | `episode_cukup_panjang` terpenuhi | `dipakai_di_luar_jadwal` | `"Ruang terisi {menit_terpakai} menit di luar jadwal ({waktu_mulai} sampai {waktu_selesai}). Perlu ditinjau Admin."` |
+
+Catatan:
+- Format waktu pada penjelasan menggunakan konvensi Bahasa Indonesia dua digit dengan pemisah titik (mis. `"07.00"`).
+- Kalimat tentang TU pada R02 bersifat informasi saja, bukan fitur booking.
+- Hanya `rule_id` berawalan `R` (aturan keputusan) yang disimpan pada kolom `rule_id` di tabel `classification_results`.
  
 ## 13. Keterbatasan yang diketahui
  

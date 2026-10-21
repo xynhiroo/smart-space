@@ -407,7 +407,7 @@ Catatan:
  
 1. Semua okupansi berasal dari simulasi buatan tim. Akurasi terhadap ground truth tidak menjamin akurasi di dunia nyata.
 2. Ruang terjadwal yang kosong lalu dipinjam kegiatan lain lewat TU tampak sebagai terisi dan tidak terbedakan tanpa data PENRU (FR-13, terblokir token).
-3. Rangkaian episode diputus oleh slot hilang, sehingga satu pemakaian panjang dapat terpecah dan tidak mencapai 30 menit bila noise slot hilang mengenai bagian tengah. Dampaknya diukur di SS1-12.
+3. Rangkaian episode diputus oleh slot hilang, sehingga satu pemakaian panjang dapat terpecah dan tidak mencapai 30 menit bila noise slot hilang mengenai bagian tengah. Hasil pengukuran pada set dev rentang semester penuh (tanpa penyetelan): dari 59 episode prediksi, 8 (13,6%) adalah pecahan dari episode ground truth yang terputus slot hilang, dan semua 51 episode ground truth tertangkap (presisi episode 0,864, recall 1,000). Toleransi slot hilang diusulkan sebagai bahan penyetelan di SS1-12 (hanya di set dev), dan belum diterapkan.
 4. Dua ambang awal (10 dan 30 menit) adalah asumsi tim sampai divalidasi manpro pada 29 Okt 2026.
 5. Kalender akademik memengaruhi sesi hanya lewat tipe `libur`. Pola khusus masa ujian ditangani generator.
 6. Data satu semester penuh (7 Sep 2026 s.d. 22 Jan 2027) adalah simulasi sintetis karena sebagian tanggal belum terjadi pada saat implementasi.

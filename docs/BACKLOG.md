@@ -218,13 +218,13 @@ Skala Size: XS=2, S=3, M=5, L=8 poin (usulan, disepakati di sinkron). Selesai: S
 
 **Tugas**
 
-- [ ] docs/AI_DESIGN.md: posisi proyek dalam ruang lingkup AI (AI1).
-- [ ] Arsitektur sistem pakar dan representasi pengetahuan: production rules, frames, diagram jaringan semantik ruang-jadwal-okupansi-status (AI2, AI4).
+- [x] docs/AI_DESIGN.md: posisi proyek dalam ruang lingkup AI (AI1).
+- [x] Arsitektur sistem pakar dan representasi pengetahuan: production rules, frames, diagram jaringan semantik ruang-jadwal-okupansi-status (AI2, AI4).
 - [ ] Pemetaan DSS: jenis, pasif vs aktif, lima fase keputusan, komponen (AI3).
 - [ ] Alur data, kontrak data, rancangan evaluasi (AI6), keterbatasan data simulasi.
 - [ ] Etika dan UU PDP: data dummy tanpa identitas individu (NFR-04).
 - [ ] README ai-service dan skrip demo yang dapat dijalankan dari nol; slide presentasi.
-- [ ] Isi kolom 'Tautan bukti' di matriks ROADMAP.md.
+- [x] Isi kolom 'Tautan bukti' di matriks ROADMAP.md.
 
 **Kriteria selesai**
 

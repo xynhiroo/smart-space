@@ -123,3 +123,31 @@ python -m app.generator --set test
 - `--seed N`: Menentukan seed acak kustom (default: `1001` untuk dev, `2002` untuk test).
 - `--dry-run`: Hanya mencetak ringkasan distribusi tanpa menyentuh DB atau membuat berkas CSV.
 - `--allow-any-database`: Mengizinkan penulisan ke database di luar daftar resmi (`smart_space_ai_dev` dan `smart_space_ai_test`). Database aplikasi `smart_space` dilindungi secara default.
+
+## Menjalankan API (SS1-11)
+
+API dijalankan dengan Uvicorn dari folder `ai-service/`:
+
+```bash
+python -m uvicorn app.main:app --port 8001
+```
+
+Dokumentasi interaktif (Swagger) ada di `http://127.0.0.1:8001/docs`.
+
+API membaca database dari `ai-service/.env` (`smart_space` secara default). Database itu harus sudah dimigrasi dan di-seed lebih dulu, termasuk kunci `empty_min_occupied_minutes` dan `outside_schedule_min_minutes` di `threshold_settings`. Bila belum, `GET /utilization` menjawab 500 dengan pesan kunci yang hilang. Dari folder `backend/`:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+> `migrate:fresh` menghapus seluruh tabel di database tujuan. Pastikan variabel `DB_DATABASE` tidak tertinggal di terminal (`$env:DB_DATABASE` harus kosong).
+
+### Endpoint
+
+| Endpoint | Fungsi |
+|---|---|
+| `GET /health` | Status layanan |
+| `GET /results` | Hasil klasifikasi pada rentang tanggal. Filter opsional: `room_id`, `status`, `limit` (maksimal 1000), `offset` |
+| `GET /utilization` | Utilisasi dan statistik efisiensi per ruang pada rentang tanggal. Filter opsional: `room_id`. Episode di luar jadwal tidak ikut dihitung |
+
+Tabel `classification_results` terisi setelah klasifikasi dijalankan. Sebelum itu, `/results` mengembalikan `total: 0` dan `/utilization` mengembalikan nilai kosong untuk semua ruang.

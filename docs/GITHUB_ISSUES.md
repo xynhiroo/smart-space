@@ -4,8 +4,8 @@ Format mengikuti issue yang sudah ada di repo (User Story, Acceptance Criteria, 
 
 ## [SS-S1-05] Impor data jadwal real Prodi IF (Perbaikan Idempotensi Seeder)
 
-- Tindakan: PERBARUI issue #38 (buka kembali dengan perbaikan di PR #57)
-- Assignee (username GitHub): Muradika (reviewer: xynhiroo)
+- Tindakan: PERBARUI issue #38 (selesai di main lewat PR #57)
+- Assignee (username GitHub): xynhiroo (reviewer: Muradika)
 - Milestone: Sprint 1 - Inti AI (sampai 30 Okt)
 - Branch: `feature/ss1-05-seeder-jadwal-idempoten`
 
@@ -19,7 +19,7 @@ Sebagai tim pengembang, saya ingin seeder jadwal bersifat idempoten dan terlindu
 Acceptance Criteria:
 
 - ScheduleSeeder menggunakan `updateOrCreate` pada kombinasi (`room_id`, `hari`, `jam_mulai`).
-- Migrasi menambahkan unique constraint/index (`room_id`, `hari`, `jam_mulai`) pada tabel `schedules` (PR #57).
+- Migrasi menambahkan unique constraint/index (`room_id`, `hari`, `jam_mulai`) pada tabel `schedules` (sudah di main lewat PR #57).
 - Menjalankan `php artisan db:seed --class=ScheduleSeeder` berulang kali menghasilkan tepat 102 jadwal tanpa duplikasi.
 
 DOD:

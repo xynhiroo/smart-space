@@ -12,7 +12,7 @@
 
 ## Perubahan dari v1.1 (18 Oktober 2026)
 
-1. Model data & skema: Kunci unik `classification_results` ditetapkan pada (`room_id`, `tanggal`, `waktu_mulai`), unique index pada slot `schedules` (`room_id`, `hari`, `jam_mulai`, menunggu PR #57), serta kolom `rooms.status` diberi label "Kondisi ruangan" (`tersedia`/`tidak tersedia`). (Bagian 10)
+1. Model data & skema: Kunci unik `classification_results` ditetapkan pada (`room_id`, `tanggal`, `waktu_mulai`), unique index pada slot `schedules` (`room_id`, `hari`, `jam_mulai`, sudah di main lewat PR #57), serta kolom `rooms.status` diberi label "Kondisi ruangan" (`tersedia`/`tidak tersedia`). (Bagian 10)
 2. Pemisahan database dev (`smart_space_ai_dev`, seed 1001) dan test (`smart_space_ai_test`, seed 2002) untuk mencegah kebocoran data, dengan isolasi pengujian otomatis di `smart_space_test`. Database aplikasi `smart_space` tidak dipakai generator. (Bagian 10)
 3. Rentang data generator dummy diperluas menjadi satu semester penuh (7 September 2026 sampai 22 Januari 2027) menggantikan batasan hingga tanggal berjalan pada rencana awal. (Bagian 10, 15)
 4. Klarifikasi pengamanan master ruangan FR-02: penghapusan ruangan ditolak bila masih memiliki jadwal atau riwayat (`occupancy_logs`, `classification_results`) (klarifikasi tim, belum divalidasi manpro). (Bagian 5)
@@ -154,7 +154,7 @@ Tier 2 dibatasi pada satu model klasifikasi agar sesuai lingkup RPP (analisis da
 | `admin_accounts` | Laravel | id, nama, email, password_hash |
 | `mahasiswa_accounts` | Laravel | id, nim, password_hash (akun dummy simulasi Learning — **baru**, akibat revisi FR-01) |
 | `rooms` | Laravel | id, nama_ruangan, kapasitas, lokasi, status (label "Kondisi ruangan", nilai: `tersedia`/`tidak tersedia`, data master) |
-| `schedules` | Laravel | id, room_id, hari, jam_mulai, jam_selesai, mata_kuliah (unique index: `room_id`, `hari`, `jam_mulai` — menunggu PR #57) |
+| `schedules` | Laravel | id, room_id, hari, jam_mulai, jam_selesai, mata_kuliah (unique index: `room_id`, `hari`, `jam_mulai` — sudah di main lewat PR #57) |
 | `threshold_settings` | Laravel | key, value, keterangan (FR-11). Kunci tambahan v1.1: `empty_min_occupied_minutes` (10) dan `outside_schedule_min_minutes` (30) |
 | `calendar_exceptions` | Laravel (seed dari data real) | tanggal_mulai, tanggal_selesai, tipe (`libur`/`ujian`/`kegiatan_khusus`), keterangan |
 | `occupancy_logs` | Python | id, room_id, slot_mulai (slot 10 menit), is_occupied, source='dummy'; unik pada room_id + slot_mulai |

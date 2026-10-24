@@ -30,7 +30,7 @@ Di luar lingkup: IoT, sensor, kamera, kontrol hardware, booking ruang, dan aktor
 | Jeda | Slot 17.00 (rentang 17.00 sampai 17.10) dianggap ruangan tutup. Tidak ada baris `occupancy_logs` pada slot ini, dan slot ini tidak dihitung dalam menit terjadwal maupun menit terpakai. Maksimum baris per ruang per hari adalah 95. |
 | Hari | `schedules.hari` memakai nama hari Bahasa Indonesia: `Senin, Selasa, Rabu, Kamis, Jum'at` (dengan tanda petik pada `Jum'at`). Normalisasi nama hari disediakan pada modul bersama `app/calendar_utils.py` (menangani variasi penulisan seperti `Jumat` tanpa tanda petik, perbedaan huruf besar/kecil, dan spasi). Pemetaan ke tanggal kalender lewat hari dalam minggu. |
 | Kelipatan 10 menit | Semua `jam_mulai` dan `jam_selesai` di `schedules` harus kelipatan 10 menit dan jatuh pada batas slot. Test SS1-07 memeriksa ke-102 jadwal hasil seeder. Bila ada yang tidak selaras, dicatat sebagai temuan dan diselesaikan sebelum SS1-09. |
-| Tumpang tindih | Dua jadwal pada ruang dan hari yang sama tidak boleh saling tumpang tindih. Seeder jadwal bersifat idempoten dengan unique index (`room_id`, `hari`, `jam_mulai`) pada `schedules` (menunggu PR #57). |
+| Tumpang tindih | Dua jadwal pada ruang dan hari yang sama tidak boleh saling tumpang tindih. Seeder jadwal bersifat idempoten dengan unique index (`room_id`, `hari`, `jam_mulai`) pada `schedules` (sudah di main lewat PR #57). |
  
 ## 2a. Set data dev dan test
  
@@ -424,7 +424,7 @@ Butir yang menambah atau memperjelas PRD v1.1 (untuk disetujui reviewer):
 - Rentang data generator diperluas ke satu semester penuh (7 Sep 2026 s.d. 22 Jan 2027) [DISETUJUI].
 - Antarmuka analitik AI menggunakan konvensi Bahasa Indonesia dan fungsi murni pada `app/analytics/utilization.py` (SS1-10) dengan pembulatan 2 desimal saat penulisan ke database [DISETUJUI].
 - Nama hari di database: `Senin, Selasa, Rabu, Kamis, Jum'at` (dengan tanda petik) dan normalisasi lewat `app/calendar_utils.py` [DISETUJUI].
-- Seeder jadwal idempoten dengan unique index slot jadwal pada `schedules` (menunggu PR #57) [DISETUJUI].
+- Seeder jadwal idempoten dengan unique index slot jadwal pada `schedules` (sudah di main lewat PR #57) [DISETUJUI].
 - Pengamanan data master ruangan: penghapusan ruangan ditolak bila memiliki jadwal atau riwayat (`occupancy_logs`, `classification_results`), dan kolom `rooms.status` bermakna kondisi ruangan (`tersedia`/`tidak tersedia`) [DISETUJUI].
 
 | Versi | Tanggal | Perubahan |

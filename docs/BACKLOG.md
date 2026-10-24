@@ -272,8 +272,8 @@ Issue yang sudah ada di GitHub dan tidak masuk jalur AI sebelum ATS:
 | Kode | Issue GitHub | Judul | Kebutuhan | Catatan |
 |---|---|---|---|---|
 | SS1-01 | #34 | Autentikasi Admin | FR-01 | Selesai di main lebih awal (PR #53) dikerjakan Dika sebelum ATS. |
-| SS1-04 | #37 | CRUD data master ruangan | FR-02 | Selesai di main lebih awal (PR #54) dikerjakan Dika; pengaman tolak hapus ruangan yang memiliki jadwal/riwayat serta label kondisi ruangan ditambahkan di PR #57. |
-| SS1-05 | #38 | Impor data jadwal real Prodi IF | FR-03 (data awal) | Seeder jadwal dibuat idempoten dengan unique index slot jadwal pada schedules (PR #57). |
+| SS1-04 | #37 | CRUD data master ruangan | FR-02 | Selesai di main lebih awal (PR #54) dikerjakan Dika; pengaman tolak hapus ruangan yang memiliki jadwal/riwayat serta label kondisi ruangan sudah di main lewat PR #57. |
+| SS1-05 | #38 | Impor data jadwal real Prodi IF | FR-03 (data awal) | Selesai di main lewat PR #57 (assignee: xynhiroo, reviewer: Muradika); seeder jadwal dibuat idempoten dengan unique index slot jadwal pada schedules. |
 | SS1-06 | #39 | Pengelolaan jadwal oleh Admin (CRUD dan override) | FR-03 (bagian Admin) | Pasca-ATS. Bergantung pada autentikasi Admin (SS1-01). |
 
 Kartu baru:

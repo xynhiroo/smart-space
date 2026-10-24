@@ -61,8 +61,8 @@ Penomoran mengikuti issue yang sudah ada di repo (judul issue berbentuk `[SS-S1-
 | Kartu | Issue GitHub | Tindakan |
 |---|---|---|
 | SS1-01 Autentikasi Admin | #34 | Selesai di main (PR #53), dikerjakan Muradika lebih awal |
-| SS1-04 Data master ruangan | #37 | Selesai di main (PR #54), dikerjakan Muradika lebih awal; pengaman hapus dan label kondisi ruangan di PR #57 |
-| SS1-05 Impor data jadwal real | #38 | Dibuka kembali untuk perbaikan idempotensi seeder dan unique index di PR #57 |
+| SS1-04 Data master ruangan | #37 | Selesai di main (PR #54), dikerjakan Muradika lebih awal; pengaman hapus dan label kondisi ruangan sudah di main lewat PR #57 |
+| SS1-05 Impor data jadwal real | #38 | Selesai di main lewat PR #57 (idempotensi seeder dan unique index jadwal) |
 | SS1-06 Pengelolaan jadwal oleh Admin | #39 | Pasca-ATS |
 | SS1-07 Kontrak data dan migrasi tabel AI | #40 | Selesai di main (PR #55) |
 | SS1-08 Generator data dummy | #41 | Menunggu PR (selesai di branch `feature/ss1-08-generator-dummy-okupansi` pada 18 Okt, lebih awal dari rencana) |
@@ -82,7 +82,7 @@ Aturan pengalihan (untuk disepakati di sinkron pertama): kartu tanpa commit samp
 | Minggu 8 (26-30 Okt) | SS1-09 (PR Sen 26, merge Sel 27); SS1-14 (Sel 27 - Kam 29, merge Jum 30); bagian SS1-13 | SS1-10 merge (Sen 26); SS1-11 (PR Rab 28, merge Kam 29); SS1-12 (PR Kam 29, merge Jum 30) | Sen 26: titik pengaman; Kam 29: sprint review dengan manpro; Jum 30: AI dibekukan |
 | ATS 2-13 Nov | Cadangan 2-6 Nov: kartu yang molor, SS1-13 final, latihan presentasi | sama | Tanpa kartu baru |
 
-Catatan pembaruan 18 Okt: SS1-01 (PR #53) dan SS1-04 (PR #54) telah selesai di main lebih awal dikerjakan Dika; SS1-07 (PR #55) dan SS1-10 (PR #56) telah ter-merge di main; SS1-08 selesai lebih awal (18 Okt) menunggu review PR; perbaikan seeder jadwal SS1-05 dan pengaman hapus ruangan siap di PR #57.
+Catatan pembaruan 18 Okt: SS1-01 (PR #53) dan SS1-04 (PR #54) telah selesai di main lebih awal dikerjakan Dika; SS1-07 (PR #55) dan SS1-10 (PR #56) telah ter-merge di main; SS1-08 selesai lebih awal (18 Okt) siap review PR; perbaikan seeder jadwal SS1-05 dan pengaman hapus ruangan sudah selesai di main lewat PR #57.
 
 Titik pengaman Sen 26 Okt: bila SS1-07 sampai SS1-09 belum merged, SS1-14 dipersempit menjadi satu model plus baseline. Kartu Rangga yang selesai PR dipindah ke Ready for Review sebelum kartu berikutnya dimulai (WIP maksimal 1 kartu In Progress per orang).
 Tanggal adalah rencana kerja. Asumsi penomoran minggu: Minggu 1 = 7 Sep 2026.

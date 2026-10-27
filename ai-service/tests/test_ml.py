@@ -456,6 +456,20 @@ class TestEndpoint:
         finally:
             pred_mod.MODEL_PATH = original
 
+    @pytest.fixture()
+    def _client_dengan_model(self, _model_kecil):
+        """TestClient dengan model tersimpan di fixture tmp."""
+        import app.api.prediksi as pred_mod
+        from fastapi.testclient import TestClient
+        from app.main import app
+
+        original = pred_mod.MODEL_PATH
+        pred_mod.MODEL_PATH = _model_kecil
+        try:
+            yield TestClient(app)
+        finally:
+            pred_mod.MODEL_PATH = original
+
     def test_503_tanpa_model(self, _client_tanpa_model):
         """Harus 503 jika model belum dilatih."""
         resp = _client_tanpa_model.post(
@@ -464,6 +478,139 @@ class TestEndpoint:
         )
         assert resp.status_code == 503
         assert "belum dilatih" in resp.json()["detail"]
+
+    def test_404_jadwal_tidak_ada(self, _client_dengan_model):
+        """Harus 404 jika jadwal tidak ditemukan."""
+        from unittest.mock import MagicMock
+        from app.database import get_db
+        from app.main import app
+
+        mock_session = MagicMock()
+        mock_session.query.return_value.filter.return_value.first.return_value = None
+        app.dependency_overrides[get_db] = lambda: mock_session
+        try:
+            resp = _client_dengan_model.post(
+                "/predict/risk",
+                json={"schedule_id": 999, "tanggal": "2026-10-12"},
+            )
+            assert resp.status_code == 404
+            assert "tidak ditemukan" in resp.json()["detail"]
+        finally:
+            app.dependency_overrides.pop(get_db, None)
+
+    def test_422_bukan_hari_jadwal(self, _client_dengan_model):
+        """Harus 422 jika tanggal tidak sesuai hari jadwal."""
+        from unittest.mock import MagicMock
+        from app.database import get_db
+        from app.main import app
+        from app.models import Schedule
+
+        jadwal = Schedule(
+            id=1,
+            room_id=1,
+            hari="Senin",
+            jam_mulai=time(8, 0),
+            jam_selesai=time(10, 0),
+            shift="pagi",
+        )
+        mock_session = MagicMock()
+        mock_session.query.return_value.filter.return_value.first.return_value = jadwal
+        app.dependency_overrides[get_db] = lambda: mock_session
+        try:
+            # 2026-10-13 adalah Selasa
+            resp = _client_dengan_model.post(
+                "/predict/risk",
+                json={"schedule_id": 1, "tanggal": "2026-10-13"},
+            )
+            assert resp.status_code == 422
+            assert "bukan hari" in resp.json()["detail"]
+        finally:
+            app.dependency_overrides.pop(get_db, None)
+
+    def test_422_hari_libur(self, _client_dengan_model):
+        """Harus 422 jika tanggal adalah hari libur."""
+        from unittest.mock import MagicMock
+        from app.database import get_db
+        from app.main import app
+        from app.models import CalendarException, Schedule
+
+        jadwal = Schedule(
+            id=1,
+            room_id=1,
+            hari="Senin",
+            jam_mulai=time(8, 0),
+            jam_selesai=time(10, 0),
+            shift="pagi",
+        )
+        ce = CalendarException(
+            id=1,
+            tanggal_mulai=date(2026, 10, 12),
+            tanggal_selesai=date(2026, 10, 12),
+            tipe="libur",
+        )
+        mock_session = MagicMock()
+        mock_session.query.return_value.filter.return_value.first.return_value = jadwal
+        mock_session.query.return_value.all.return_value = [ce]
+        app.dependency_overrides[get_db] = lambda: mock_session
+        try:
+            resp = _client_dengan_model.post(
+                "/predict/risk",
+                json={"schedule_id": 1, "tanggal": "2026-10-12"},
+            )
+            assert resp.status_code == 422
+            assert "hari libur" in resp.json()["detail"]
+        finally:
+            app.dependency_overrides.pop(get_db, None)
+
+    def test_200_sukses_prediksi(self, _client_dengan_model):
+        """Harus 200 dan menghasilkan skema prediksi valid."""
+        from unittest.mock import MagicMock
+        from app.database import get_db
+        from app.main import app
+        from app.models import Room, Schedule
+
+        jadwal = Schedule(
+            id=1,
+            room_id=1,
+            hari="Senin",
+            jam_mulai=time(8, 0),
+            jam_selesai=time(10, 0),
+            shift="pagi",
+        )
+        ruang = Room(
+            id=1,
+            nama_ruangan="GU 702",
+        )
+        mock_session = MagicMock()
+
+        def mock_query(model):
+            q = MagicMock()
+            if model == Schedule:
+                q.filter.return_value.first.return_value = jadwal
+            elif model == Room:
+                q.filter.return_value.first.return_value = ruang
+            else:
+                q.all.return_value = []
+            return q
+
+        mock_session.query.side_effect = mock_query
+        mock_session.execute.return_value.fetchall.return_value = []
+        app.dependency_overrides[get_db] = lambda: mock_session
+        try:
+            resp = _client_dengan_model.post(
+                "/predict/risk",
+                json={"schedule_id": 1, "tanggal": "2026-10-12"},
+            )
+            assert resp.status_code == 200
+            data = resp.json()
+            assert "skor_risiko" in data
+            assert data["risiko"] in ["tinggi", "rendah"]
+            assert "ambang" in data
+            assert data["nama_model"] == "logreg"
+            assert "fitur" in data
+            assert data["fitur"]["nama_ruangan"] == "GU 702"
+        finally:
+            app.dependency_overrides.pop(get_db, None)
 
 
 # ---------------------------------------------------------------------------

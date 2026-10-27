@@ -124,6 +124,30 @@ python -m app.generator --set test
 - `--dry-run`: Hanya mencetak ringkasan distribusi tanpa menyentuh DB atau membuat berkas CSV.
 - `--allow-any-database`: Mengizinkan penulisan ke database di luar daftar resmi (`smart_space_ai_dev` dan `smart_space_ai_test`). Database aplikasi `smart_space` dilindungi secara default.
 
+## Menjalankan Klasifikasi (SS1-11)
+
+Modul runner klasifikasi berada di `app/classification/` dan digunakan untuk mengorkestrasi evaluasi status ruangan harian menggunakan sistem pakar Tier 1 secara idempoten dan menyimpannya ke tabel `classification_results`.
+
+Jalankan klasifikasi dari folder `ai-service/` atau root direktori:
+
+```bash
+# Uji coba evaluasi tanpa menulis ke database (dry-run):
+python -m app.classification --set dev --dry-run
+
+# Menjalankan klasifikasi untuk dataset dev (semester penuh ke smart_space_ai_dev):
+python -m app.classification --set dev
+
+# Menjalankan klasifikasi untuk dataset test (semester penuh ke smart_space_ai_test):
+python -m app.classification --set test
+```
+
+**Opsi CLI Tambahan:**
+- `--start YYYY-MM-DD`: Tanggal awal evaluasi (default: `2026-09-07`, awal semester aktif).
+- `--end YYYY-MM-DD`: Tanggal akhir evaluasi (default: `2027-01-22`, akhir semester aktif).
+- `--waktu-evaluasi YYYY-MM-DDTHH:MM:SS`: Batas waktu evaluasi (default: hari sesudah `--end` pukul 00.00 WIB, agar seluruh sesi dalam rentang dinilai).
+- `--dry-run`: Hanya mencetak ringkasan distribusi status tanpa menulis ke database (transaksi dibatalkan/rollback).
+- `--allow-any-database`: Mengizinkan penulisan ke database di luar daftar dev/test (`smart_space_ai_dev` dan `smart_space_ai_test`). Database operasional `smart_space` terlindungi secara default.
+
 ## Menjalankan API (SS1-11)
 
 API dijalankan dengan Uvicorn dari folder `ai-service/`:

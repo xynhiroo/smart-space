@@ -376,6 +376,60 @@ def klasifikasikan_hari(
 ```
 
 Pemuat ambang dari database dan penyimpan hasil ke database disediakan pada lapisan repositori (SS1-11) dengan memanfaatkan kunci unik dan prinsip idempotensi (Bagian 5 dan 9).
+
+### 11.3 Model risiko (SS1-14)
+
+Model ML klasifikasi biner yang memprediksi apakah sesi terjadwal berisiko tidak dipakai. Diimplementasikan pada paket `ai-service/app/ml/`.
+
+**Definisi label.** Satu baris = satu sesi terjadwal (`classification_results` dengan `schedule_id IS NOT NULL`). Label: `1` bila `status = 'kosong_meski_terjadwal'`, `0` selain itu. Label berasal dari keluaran sistem pakar (Bagian 12), bukan dari ground truth.
+
+**Aturan fitur (hanya sebelum sesi).**  Fitur hanya dihitung dari informasi yang diketahui sebelum sesi dimulai. Kolom terlarang yang tidak boleh masuk matriks fitur: `status`, `menit_terpakai`, `utilisasi_pct`, `rule_id`, `penjelasan`, `penyebab`, dan okupansi pada hari sesi itu. Fitur yang dipakai:
+
+| Fitur | Sumber |
+|---|---|
+| Ruang (one-hot) | `rooms.nama_ruangan` |
+| Hari dalam pekan | `tanggal.weekday()` |
+| Jam mulai | `schedules.jam_mulai` |
+| Durasi menit | `schedules.jam_selesai - jam_mulai` |
+| Shift | `schedules.shift` (atau diturunkan dari jam mulai dengan konstanta bernama) |
+| `is_open_space` | `NAMA_OPEN_SPACE` dari `app/generator/params.py` |
+| Pekan ke- | Hari sejak `SEMESTER_START` dibagi 7 |
+| Jenis hari | `calendar_exceptions` (biasa, ujian, kegiatan_khusus; diketahui sebelumnya) |
+| Dekat libur | Ada tanggal libur dalam N hari kerja sebelum/sesudah |
+| Pekan sebelum ujian | Tanggal dalam 7 hari sebelum tanggal mulai ujian |
+| `kosong_rate_ruang_sebelumnya` | Proporsi label kosong pada ruang itu di pekan-pekan sebelum pekan sesi |
+| `ada_riwayat` | Apakah ada data riwayat pekan sebelumnya |
+
+**Pembagian kronologis.**
+
+| Blok | Set | Rentang | Tujuan |
+|---|---|---|---|
+| Latih | dev | 2026-09-07 s.d. 2026-11-13 | Melatih model |
+| Validasi | dev | 2026-11-16 s.d. 2026-12-18 | Memilih hiperparameter dan ambang keputusan |
+| Uji | test | 2026-12-21 s.d. 2027-01-22 | Evaluasi akhir satu kali |
+
+Fitur riwayat untuk blok uji dihitung dari data set test itu sendiri pada pekan-pekan sebelumnya.
+
+**Endpoint `POST /predict/risk`.**
+
+Masukan:
+```json
+{"schedule_id": 42, "tanggal": "2026-10-20"}
+```
+
+Keluaran:
+```json
+{
+  "skor_risiko": 0.73,
+  "risiko": "tinggi",
+  "ambang": 0.35,
+  "nama_model": "logreg",
+  "fitur": {"jam_mulai_num": 8.0, "...": "..."}
+}
+```
+
+Kode status: 503 (model belum dilatih), 404 (jadwal tidak ditemukan), 422 (tanggal bukan hari jadwal atau hari libur).
+
  
 ## 12. Aturan sistem pakar (FINAL SS1-09)
 

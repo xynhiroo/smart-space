@@ -68,7 +68,7 @@ def bagi_kronologis(
             )
             if positif < 20:
                 print(
-                    f"  ⚠ PERINGATAN: Blok {nama} hanya punya {positif} "
+                    f"  [!] PERINGATAN: Blok {nama} hanya punya {positif} "
                     f"sampel positif (< 20). Metrik mungkin tidak stabil."
                 )
         else:

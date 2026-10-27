@@ -320,7 +320,7 @@ def cetak_irisan_uji(
         print(f"\n  Irisan '{nama}': {n} sampel, {n_positif} positif")
 
         if n_positif < 20:
-            print(f"    ⚠ Kurang dari 20 sampel positif, metrik tidak stabil.")
+            print(f"    [!] Kurang dari 20 sampel positif, metrik tidak stabil.")
 
         if n > 0:
             yt = subset["y_true"].values

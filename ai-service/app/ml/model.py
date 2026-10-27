@@ -143,12 +143,12 @@ def latih_dan_pilih(
             best_tree_depth = depth
             best_tree_pipeline = pipe
 
-    print(f"  → Terbaik: depth={best_tree_depth}, F1_val={best_tree_f1:.4f}")
+    print(f"  -> Terbaik: depth={best_tree_depth}, F1_val={best_tree_f1:.4f}")
 
     # Ambang optimal Decision Tree
     y_proba_tree_val = best_tree_pipeline.predict_proba(X_v)[:, 1]
     ambang_tree = _pilih_ambang_optimal(y_val, y_proba_tree_val)
-    print(f"  → Ambang optimal: {ambang_tree}")
+    print(f"  -> Ambang optimal: {ambang_tree}")
 
     # ===== Logistic Regression =====
     print("\n=== Pemilihan hiperparameter Logistic Regression ===")
@@ -193,12 +193,12 @@ def latih_dan_pilih(
             best_lr_C = C
             best_lr_pipeline = pipe
 
-    print(f"  → Terbaik: C={best_lr_C}, F1_val={best_lr_f1:.4f}")
+    print(f"  -> Terbaik: C={best_lr_C}, F1_val={best_lr_f1:.4f}")
 
     # Ambang optimal Logistic Regression
     y_proba_lr_val = best_lr_pipeline.predict_proba(X_v)[:, 1]
     ambang_lr = _pilih_ambang_optimal(y_val, y_proba_lr_val)
-    print(f"  → Ambang optimal: {ambang_lr}")
+    print(f"  -> Ambang optimal: {ambang_lr}")
 
     return {
         "tree": {
@@ -262,7 +262,7 @@ def simpan_model(
     with open(model_dir / "metadata.json", "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2, ensure_ascii=False)
 
-    print(f"\n✓ Model disimpan di: {model_dir}")
+    print(f"\n[OK] Model disimpan di: {model_dir}")
     return model_dir
 
 

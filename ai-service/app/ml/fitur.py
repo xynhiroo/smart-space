@@ -32,6 +32,26 @@ from app.ml.konstanta import (
 )
 
 
+def _ke_time(val) -> time:
+    """Konversi timedelta atau datetime.time ke datetime.time.
+
+    MySQL/PyMySQL mengembalikan kolom TIME sebagai timedelta; konversi
+    ini memastikan logika fitur bekerja untuk kedua tipe.
+    """
+    if isinstance(val, time):
+        return val
+    if isinstance(val, timedelta):
+        total_detik = int(val.total_seconds())
+        jam = total_detik // 3600
+        menit = (total_detik % 3600) // 60
+        return time(jam % 24, menit)
+    # Fallback: coba parsing string
+    if isinstance(val, str):
+        bagian = val.split(":")
+        return time(int(bagian[0]) % 24, int(bagian[1]) if len(bagian) > 1 else 0)
+    raise TypeError(f"Tidak dapat mengonversi {type(val)} ke datetime.time")
+
+
 def turunkan_shift(jam_mulai: time) -> str:
     """Tentukan shift dari jam_mulai jika kolom shift kosong."""
     jam = jam_mulai.hour
@@ -211,28 +231,32 @@ def bangun_fitur(
     if not pd.api.types.is_object_dtype(df["tanggal"]):
         df["tanggal"] = pd.to_datetime(df["tanggal"]).dt.date
 
+    # Normalisasi jam_mulai dan jam_selesai ke datetime.time (MySQL bisa
+    # mengembalikan timedelta)
+    df["_jam_mulai_t"] = df["jam_mulai"].apply(_ke_time)
+    df["_jam_selesai_t"] = df["jam_selesai"].apply(_ke_time)
+
     # --- Fitur dasar ---
     df["hari_dalam_pekan"] = df["tanggal"].apply(lambda d: d.weekday())
 
-    df["jam_mulai_num"] = df["jam_mulai"].apply(
-        lambda t: t.hour + t.minute / 60.0 if isinstance(t, time) else t
+    df["jam_mulai_num"] = df["_jam_mulai_t"].apply(
+        lambda t: t.hour + t.minute / 60.0
     )
 
     df["durasi_menit"] = df.apply(
-        lambda row: hitung_durasi_menit(row["jam_mulai"], row["jam_selesai"])
-        if isinstance(row["jam_mulai"], time)
-        else 0,
+        lambda row: hitung_durasi_menit(row["_jam_mulai_t"], row["_jam_selesai_t"]),
         axis=1,
     )
 
     df["shift_val"] = df.apply(
         lambda row: row["shift"]
         if pd.notna(row.get("shift"))
-        else turunkan_shift(row["jam_mulai"])
-        if isinstance(row["jam_mulai"], time)
-        else SHIFT_PAGI,
+        else turunkan_shift(row["_jam_mulai_t"]),
         axis=1,
     )
+
+    # Hapus kolom bantu internal
+    df = df.drop(columns=["_jam_mulai_t", "_jam_selesai_t"])
 
     # is_open_space dari NAMA_OPEN_SPACE (bukan duplikasi daftar)
     df["is_open_space"] = df["nama_ruangan"].isin(NAMA_OPEN_SPACE).astype(int)

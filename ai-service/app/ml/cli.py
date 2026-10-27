@@ -91,9 +91,9 @@ def cmd_latih(args: argparse.Namespace) -> None:
     from app.ml.dataset import muat_calendar_exceptions, muat_sesi_terjadwal
 
     nama_set = args.set
-    print(f"═══════════════════════════════════════════════════")
-    print(f"  ML Risiko Sesi Kosong — Pelatihan (set: {nama_set})")
-    print(f"═══════════════════════════════════════════════════")
+    print("====================================================")
+    print(f"  ML Risiko Sesi Kosong - Pelatihan (set: {nama_set})")
+    print("====================================================")
 
     session = _buat_session(nama_set)
 
@@ -104,7 +104,7 @@ def cmd_latih(args: argparse.Namespace) -> None:
         print(f"  Jumlah sesi: {len(df_sesi)}")
 
         if df_sesi.empty:
-            print("  ✗ Tidak ada data sesi terjadwal di database.")
+            print("  [X] Tidak ada data sesi terjadwal di database.")
             print("    Jalankan runner klasifikasi terlebih dahulu:")
             print(f"    python -m app.classification --set {nama_set}")
             sys.exit(1)
@@ -124,7 +124,7 @@ def cmd_latih(args: argparse.Namespace) -> None:
         verifikasi_pembagian(df_latih, df_val, df_uji)
 
         if df_latih.empty or df_val.empty:
-            print("  ✗ Blok latih atau validasi kosong.")
+            print("  [X] Blok latih atau validasi kosong.")
             sys.exit(1)
 
         # 4. Siapkan X, y
@@ -152,7 +152,7 @@ def cmd_latih(args: argparse.Namespace) -> None:
         print("\n[6/6] Evaluasi pada blok validasi...")
 
         # Baseline
-        print("\n── Baseline ──")
+        print("\n-- Baseline --")
         m_maj = baseline_mayoritas(y_val)
         cetak_metrik("Baseline: Mayoritas", m_maj)
 
@@ -169,7 +169,7 @@ def cmd_latih(args: argparse.Namespace) -> None:
         cetak_metrik("Baseline: Rata-rata historis per jenis hari", m_jenis)
 
         # Model
-        print("\n── Model ──")
+        print("\n-- Model --")
         for nama_model, key in [("Decision Tree", "tree"), ("Logistic Regression", "logreg")]:
             pipe = hasil[key]["pipeline"]
             ambang = hasil[key]["ambang"]
@@ -186,7 +186,7 @@ def cmd_latih(args: argparse.Namespace) -> None:
             cetak_metrik(f"{nama_model} (ambang=0.5)", m_05)
 
         # Analisis kesalahan
-        print("\n── Analisis Kesalahan (Logistic Regression) ──")
+        print("\n-- Analisis Kesalahan (Logistic Regression) --")
         pipe_lr = hasil["logreg"]["pipeline"]
         ambang_lr = hasil["logreg"]["ambang"]
         y_proba_lr = pipe_lr.predict_proba(X_val)[:, 1]
@@ -197,11 +197,11 @@ def cmd_latih(args: argparse.Namespace) -> None:
             print(df_err.to_string(index=False))
 
         # Feature importance
-        print("\n── Feature Importance (Decision Tree) ──")
+        print("\n-- Feature Importance (Decision Tree) --")
         fi = pentingnya_fitur_tree(hasil["tree"]["pipeline"], fitur_ada)
         print(fi.head(15).to_string(index=False))
 
-        print("\n── Koefisien (Logistic Regression) ──")
+        print("\n-- Koefisien (Logistic Regression) --")
         coef = koefisien_logreg(hasil["logreg"]["pipeline"], fitur_ada)
         print(coef.to_string(index=False))
 
@@ -217,21 +217,21 @@ def cmd_evaluasi_akhir(args: argparse.Namespace) -> None:
     from app.ml.dataset import muat_calendar_exceptions, muat_sesi_terjadwal
 
     nama_set = args.set
-    print(f"═══════════════════════════════════════════════════")
-    print(f"  ML Risiko Sesi Kosong — Evaluasi Akhir (set: {nama_set})")
-    print(f"═══════════════════════════════════════════════════")
+    print("====================================================")
+    print(f"  ML Risiko Sesi Kosong - Evaluasi Akhir (set: {nama_set})")
+    print("====================================================")
     print()
-    print("  ⚠ PERINGATAN: Set test hanya boleh dievaluasi SEKALI.")
+    print("  [!] PERINGATAN: Set test hanya boleh dievaluasi SEKALI.")
     print("  Jangan mengubah apa pun setelah melihat hasil ini.")
     print()
 
     if nama_set != "test":
-        print(f"  ✗ Evaluasi akhir hanya untuk set test.")
+        print(f"  [X] Evaluasi akhir hanya untuk set test.")
         sys.exit(1)
 
     # Periksa model tersimpan
     if not (MODEL_PATH / "metadata.json").exists():
-        print("  ✗ Model belum dilatih. Latih model terlebih dahulu:")
+        print("  [X] Model belum dilatih. Latih model terlebih dahulu:")
         print("    python -m app.ml latih --set dev")
         sys.exit(1)
 
@@ -244,7 +244,7 @@ def cmd_evaluasi_akhir(args: argparse.Namespace) -> None:
         print(f"  Jumlah sesi: {len(df_sesi)}")
 
         if df_sesi.empty:
-            print("  ✗ Tidak ada data sesi di set test.")
+            print("  [X] Tidak ada data sesi di set test.")
             print("    Jalankan runner terlebih dahulu:")
             print("    python -m app.classification --set test")
             sys.exit(1)
@@ -270,10 +270,10 @@ def cmd_evaluasi_akhir(args: argparse.Namespace) -> None:
             positif = distribusi.get(1, 0)
             print(f"  Positif={positif}, Negatif={distribusi.get(0, 0)}")
             if positif < 20:
-                print(f"  ⚠ Kurang dari 20 sampel positif di blok uji!")
+                print(f"  [!] Kurang dari 20 sampel positif di blok uji!")
 
         if df_uji.empty:
-            print("  ✗ Blok uji kosong.")
+            print("  [X] Blok uji kosong.")
             sys.exit(1)
 
         # Muat model
@@ -299,7 +299,7 @@ def cmd_evaluasi_akhir(args: argparse.Namespace) -> None:
             session_dev.close()
 
         # Baseline
-        print("\n── Baseline ──")
+        print("\n-- Baseline --")
         m_maj = baseline_mayoritas(y_uji)
         cetak_metrik("Baseline: Mayoritas", m_maj)
 
@@ -316,7 +316,7 @@ def cmd_evaluasi_akhir(args: argparse.Namespace) -> None:
         cetak_metrik("Baseline: Rata-rata historis per jenis hari", m_jenis)
 
         # Model
-        print("\n── Model ──")
+        print("\n-- Model --")
         import json
         with open(MODEL_PATH / "metadata.json", encoding="utf-8") as f:
             metadata = json.load(f)
@@ -337,7 +337,7 @@ def cmd_evaluasi_akhir(args: argparse.Namespace) -> None:
             cetak_metrik(f"{nama_model} (ambang=0.5)", m_05)
 
         # Irisan
-        print("\n── Irisan Blok Uji ──")
+        print("\n-- Irisan Blok Uji --")
         pipe_lr, _ = muat_model(MODEL_PATH, "logreg")
         ambang_lr = metadata["logreg"]["ambang"]
         y_proba_lr = pipe_lr.predict_proba(X_uji)[:, 1]
@@ -345,16 +345,16 @@ def cmd_evaluasi_akhir(args: argparse.Namespace) -> None:
         cetak_irisan_uji(df_uji, y_uji, y_pred_lr, y_proba_lr, cal_exc)
 
         # Analisis kesalahan
-        print("\n── Analisis Kesalahan (Logistic Regression, blok uji) ──")
+        print("\n-- Analisis Kesalahan (Logistic Regression, blok uji) --")
         err = analisis_kesalahan(df_uji, y_uji, y_pred_lr)
         for key_err, df_err in err.items():
             print(f"\n  {key_err}:")
             print(df_err.to_string(index=False))
 
-        print("\n═══════════════════════════════════════════════════")
+        print("\n====================================================")
         print("  Evaluasi akhir selesai. JANGAN mengubah model atau")
         print("  hiperparameter setelah melihat hasil ini.")
-        print("═══════════════════════════════════════════════════")
+        print("====================================================")
 
     finally:
         session.close()

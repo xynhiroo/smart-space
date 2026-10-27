@@ -1,6 +1,10 @@
-"""Parameter generator data dummy okupansi dan ground truth (SS1-08)."""
+"""Parameter generator data dummy okupansi dan ground truth (SS1-08).
 
-from dataclasses import dataclass
+Konstanta NAMA_OPEN_SPACE diekspor ke runner klasifikasi (SS1-11) agar
+penentuan is_open_space tidak menduplikasi daftar nama.
+"""
+
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Mapping, Sequence
 
@@ -43,6 +47,9 @@ STATUS_LUAR_JADWAL = "dipakai_di_luar_jadwal"
 
 PENYEBAB_LUAR_JADWAL = "pemakaian_luar_jadwal"
 
+# Daftar nama ruang open-space. Diekspor agar runner klasifikasi (SS1-11) dapat
+# mengimpornya tanpa menduplikasi daftar ini dan tanpa mengubah skema database.
+NAMA_OPEN_SPACE: tuple[str, ...] = ("GU 701", "GU 705", "GU 707")
 
 @dataclass(frozen=True)
 class GeneratorParams:
@@ -80,7 +87,7 @@ class GeneratorParams:
     break_minute: int = MENIT_JEDA
 
     # Ruang open-space
-    open_space_room_names: tuple[str, ...] = ("GU 701", "GU 705", "GU 707")
+    open_space_room_names: tuple[str, ...] = field(default_factory=lambda: NAMA_OPEN_SPACE)
 
     def is_open_space(self, room_name: str) -> bool:
         """Memeriksa apakah ruangan tergolong open-space berdasarkan namanya."""

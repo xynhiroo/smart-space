@@ -1,5 +1,6 @@
-﻿from fastapi import FastAPI
+from fastapi import FastAPI
 
+from app.api.prediksi import router as prediksi_router
 from app.api.rute import router
 
 app = FastAPI(
@@ -9,6 +10,7 @@ app = FastAPI(
 )
 
 app.include_router(router)
+app.include_router(prediksi_router)
 
 
 @app.get("/")

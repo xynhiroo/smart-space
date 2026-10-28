@@ -40,7 +40,15 @@ class PrediksiResponse(BaseModel):
     """Skema keluaran prediksi risiko."""
 
     skor_risiko: float = Field(..., description="Probabilitas sesi kosong (0-1)")
-    risiko: str = Field(..., description="'tinggi' atau 'rendah'")
+    risiko: str = Field(
+        ...,
+        description=(
+            "'tinggi' jika skor_risiko >= ambang model, selain itu 'rendah'. "
+            "Pada model default (Logistic Regression ambang 0.56), label 'tinggi' "
+            "menandai ~90.4% sesi uji sebagai sinyal peringatan dini (recall 94.2%), "
+            "bukan kepastian bahwa ruangan pasti kosong."
+        ),
+    )
     ambang: float = Field(..., description="Ambang keputusan yang dipakai")
     nama_model: str = Field(..., description="Nama model yang dipakai")
     fitur: dict[str, Any] = Field(..., description="Fitur yang dipakai untuk prediksi")
@@ -56,7 +64,16 @@ def prediksi_risiko(
     req: PrediksiRequest,
     session: Session = Depends(get_db),
 ) -> PrediksiResponse:
-    """Prediksi risiko sesi kosong berdasarkan jadwal dan tanggal."""
+    """Prediksi risiko sesi kosong berdasarkan jadwal dan tanggal.
+
+    Arti label 'risiko':
+    - 'tinggi': skor_risiko >= ambang model tersimpan (default logreg: 0.56).
+      Model dioptimalkan untuk menangkap recall tinggi (94.2% pada uji) sehingga
+      pada set uji menandai ~90.4% sesi sebagai berisiko tinggi. Label ini
+      merupakan sinyal peringatan awal untuk perhatian admin / prioritas monitoring,
+      bukan kepastian mutlak bahwa sesi pasti kosong.
+    - 'rendah': skor_risiko < ambang model tersimpan.
+    """
     from sqlalchemy import text
 
     from app.calendar_utils import matches_day_of_week

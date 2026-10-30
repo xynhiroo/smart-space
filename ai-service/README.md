@@ -175,3 +175,31 @@ php artisan migrate:fresh --seed
 | `GET /utilization` | Utilisasi dan statistik efisiensi per ruang pada rentang tanggal. Filter opsional: `room_id`. Episode di luar jadwal tidak ikut dihitung |
 
 Tabel `classification_results` terisi setelah klasifikasi dijalankan. Sebelum itu, `/results` mengembalikan `total: 0` dan `/utilization` mengembalikan nilai kosong untuk semua ruang.
+
+## Evaluasi Sistem Pakar terhadap Ground Truth (SS1-12)
+
+Modul `app/evaluation/` mencocokkan hasil klasifikasi (`classification_results`) dengan ground truth generator (CSV) dan mencetak accuracy, precision, recall, F1 per kelas, matriks kebingungan, serta rincian galat. Modul ini hanya membaca database.
+
+```bash
+python -m app.generator --set dev
+python -m app.classification --set dev
+python -m app.evaluation --set dev
+```
+
+Opsi: `--set dev|test`, `--ground-truth JALUR`. Berkas CSV ground truth ada di `data/ground_truth/` dan tidak ikut ke git. Sesi dicocokkan lewat (`tanggal`, `room_id`, `schedule_id`). Episode di luar jadwal dicocokkan lewat irisan waktu. Hasil dan analisisnya ada di `docs/EVALUASI_AI.md`.
+
+Set test hanya boleh dievaluasi setelah ambang final ditetapkan dari set dev.
+
+## Evaluasi Sistem Pakar terhadap Ground Truth (SS1-12)
+
+Modul `app/evaluation/` mencocokkan hasil klasifikasi (`classification_results`) dengan ground truth generator (CSV) dan mencetak accuracy, precision, recall, F1 per kelas, matriks kebingungan, serta rincian galat. Modul ini hanya membaca database.
+
+```bash
+python -m app.generator --set dev
+python -m app.classification --set dev
+python -m app.evaluation --set dev
+```
+
+Opsi: `--set dev|test`, `--ground-truth JALUR`. Berkas CSV ground truth ada di `data/ground_truth/` dan tidak ikut ke git. Sesi dicocokkan lewat (`tanggal`, `room_id`, `schedule_id`). Episode di luar jadwal dicocokkan lewat irisan waktu. Hasil dan analisisnya ada di `docs/EVALUASI_AI.md`.
+
+Set test hanya boleh dievaluasi setelah ambang final ditetapkan dari set dev.

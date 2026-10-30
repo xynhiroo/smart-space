@@ -1,0 +1,5 @@
+# Dependensi tambahan untuk notebook dan visualisasi (SS1-14)
+# Dipisahkan agar tidak membebani lingkungan produksi.
+jupyter>=1.0.0
+nbconvert>=7.0.0
+matplotlib>=3.9.0

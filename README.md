@@ -1,5 +1,7 @@
 # Smart Space Analytics Platform (PBLIF3-PD08)
 
+[![CI](https://github.com/xynhiroo/smart-space/actions/workflows/ci.yml/badge.svg)](https://github.com/xynhiroo/smart-space/actions/workflows/ci.yml)
+
 Platform analitik pemanfaatan dan utilisasi ruang kelas/lab berbasis arsitektur **Hybrid**:
 - **Backend Utama**: Laravel (REST API, CRUD Master Data Ruangan, Jadwal, Threshold, dan Autentikasi Multi-Guard).
 - **AI & Analytics Engine**: Python FastAPI (Rule engine klasifikasi okupansi, generator data dummy sensor, analisis utilisasi).

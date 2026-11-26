@@ -133,6 +133,8 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           php artisan migrate --force
+          php -r "(new PDO('mysql:host=127.0.0.1;port=3306', 'root', ''))->exec('CREATE DATABASE IF NOT EXISTS smart_space_ai_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');"
+          DB_DATABASE=smart_space_ai_dev php artisan migrate --force --seed
 
       - uses: actions/setup-python@v5
         with:

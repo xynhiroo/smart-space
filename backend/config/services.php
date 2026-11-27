@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'ai_service' => [
+        'url' => env('AI_SERVICE_URL', 'http://127.0.0.1:8001'),
+        'token' => env('AI_SERVICE_TOKEN', ''),
+        'timeout' => (int) env('AI_SERVICE_TIMEOUT', 10),
+    ],
+
 ];

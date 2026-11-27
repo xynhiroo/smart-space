@@ -6,22 +6,74 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Tipografi: Bricolage Grotesque & Hanken Grotesk */
+    --font-display: 'Bricolage Grotesque', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-sans: 'Hanken Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
+    /* Palette Warna: SG Fondasi Design Tokens */
+    --color-ink: #112250;
+    --color-primary: #3C507D;
+    --color-gold: #E0C58F;
+    --color-paper: #F5F0E9;
+    --color-surface: #FFFFFF;
+    --color-line: #D9CBC2;
+
+    /* Warna Semantik */
+    --color-ok-bg: #E3F1EA;
+    --color-ok-text: #1E5C42;
+    --color-warn-bg: #FBEFD5;
+    --color-warn-text: #7A4F0C;
+    --color-bad-bg: #F9E1DF;
+    --color-bad-text: #8C1D18;
+    --color-error: #B3261E;
+
+    /* Alias Backward Compatibility (PR #53 & PR #54) */
     --color-royal: #112250;
     --color-sapphire: #3C507D;
     --color-quicksand: #E0C58F;
     --color-swan: #F5F0E9;
     --color-shellstone: #D9CBC2;
+    --color-danger: #B3261E;
+    --color-danger-soft: #F9E1DF;
 
-    /* Semantic color outside the brand palette for accessible error states. */
-    --color-danger: #B42318;
-    --color-danger-soft: #FDECEC;
+    /* Radius Tokens: Chip (4px), Kontrol (8px), Panel (12px) */
+    --radius-chip: 4px;
+    --radius-kontrol: 8px;
+    --radius-panel: 12px;
+
+    /* Bayangan Modal & Toast: 0 8px 24px dengan ink 12% opacity */
+    --shadow-modal: 0 8px 24px rgba(17, 34, 80, 0.12);
+    --shadow-toast: 0 8px 24px rgba(17, 34, 80, 0.12);
 }
 
 @layer base {
     body {
-        @apply bg-swan text-royal antialiased;
+        background-color: var(--color-paper);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        font-size-adjust: from-font;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-display {
+        font-family: var(--font-display);
+        font-weight: 600;
+    }
+
+    /* Tabular numbers untuk metrik, tanggal, jam, kapasitas, dan utilisasi */
+    .tabular-nums {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Panduan Modern Web: dialog:modal overscroll containment */
+    dialog:modal {
+        overscroll-behavior: contain;
+    }
+
+    dialog::backdrop {
+        overflow: hidden;
+        overscroll-behavior: contain;
+        background-color: rgba(17, 34, 80, 0.4);
+        backdrop-filter: blur(2px);
     }
 }
